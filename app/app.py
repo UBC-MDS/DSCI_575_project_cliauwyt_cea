@@ -20,6 +20,20 @@ app_ui = ui.page_fillable(
         .shiny-input-radiogroup > .control-label {
             margin-bottom: 0.9rem;
         }
+
+        #search_results table td:nth-child(1),
+        #search_results table th:nth-child(1) {
+            min-width: 320px;
+            max-width: 320px;
+            white-space: normal;
+        }
+
+        #search_results table td:nth-child(2),
+        #search_results table th:nth-child(2) {
+            min-width: 460px;
+            max-width: 460px;
+            white-space: normal;
+        }
     """),
     ui.layout_columns(
         ui.div(
@@ -50,7 +64,14 @@ def server(input, output, session):
 
             model = SentenceTransformer("all-MiniLM-L6-v2")
             semantic_index_path = 'data/processed/embedding.faiss'
-            results = semantic_search(q, semantic_index_path, model, data, top_k=3)
+            results = (
+                semantic_search(q, semantic_index_path, model, data, top_k=3)
+                .assign(
+                    text=lambda d: d["text"].str.slice(0, 200),
+                    score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),
+                )
+                .rename(columns=lambda c: c.replace("_", " ").title())
+            )
             return render.DataTable(results)
 
 
