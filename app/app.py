@@ -15,13 +15,24 @@ data = c2.execute(
 data.dropna(subset=['product_title'], inplace=True)
 
 app_ui = ui.page_fillable(
-    ui.input_radio_buttons(
-        "retrieval_type",
-        "Retreival type",
-        ["BM25", "Semantic"]
-    ),
-    ui.input_text("query", "Query"),
-    ui.output_data_frame("search_results")
+    ui.panel_title("Health and Personal Care Search"),
+    ui.tags.style("""
+        .shiny-input-radiogroup > .control-label {
+            margin-bottom: 0.9rem;
+        }
+    """),
+    ui.layout_columns(
+        ui.div(
+            ui.input_radio_buttons(
+                "retrieval_type",
+                "Retreival type",
+                ["BM25", "Semantic"]
+            ),
+            ui.input_text("query", "Query")
+        ),
+        ui.output_data_frame("search_results"),
+        col_widths=(3, 9)
+    )
 )
 
 
