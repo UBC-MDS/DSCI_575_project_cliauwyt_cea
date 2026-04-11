@@ -7,3 +7,4 @@ faiss-cpu==1.13.2
 langchain==1.2.15
 shiny==1.6.0
 duckdb==1.5.1
+spacy==3.8.13
