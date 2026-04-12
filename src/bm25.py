@@ -20,15 +20,15 @@ def bm25_tokenize(text):
     text = preprocess_spacy(nlp(text))
     return text.split()
 
-def bm25_search(query, bm25, products_df, top_k=5):
+def bm25_search(query, index_path, products_df, top_k=5):
     """Run BM25 search againts persisted BM25 index.
 
     Parameters
     ----------
     query : str
         User query text to embed and search.
-    bm25: BM25 index object
-        The BM25 index object from tokenized corpus
+    index_path : str
+        The file path with the BM25 object
     products_df : pandas.DataFrame
         DataFrame aligned to index row positions. Must include
         ``product_title``, ``text``, and ``rating`` columns.
@@ -42,6 +42,8 @@ def bm25_search(query, bm25, products_df, top_k=5):
         ``text``, ``rating``, and ``score``, sorted by ``score`` in
         descending order.
     """
+    with open(index_path, "rb") as f:
+        bm25 = pickle.load(f)
     tokenized_query = bm25_tokenize(query)
     scores = bm25.get_scores(tokenized_query)
     ranked_idx = np.argsort(scores)[::-1][:top_k]
