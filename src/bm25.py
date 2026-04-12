@@ -1,7 +1,10 @@
+import os
 import pandas as pd
-import re
 import numpy as np
 import spacy
+import pickle
+
+from rank_bm25 import BM25Okapi
 from src.utils import preprocess_spacy
 
 def bm25_tokenize(text):
@@ -47,3 +50,28 @@ def bm25_search(query, bm25, products_df, top_k=5):
     results['score'] = scores[ranked_idx]
     
     return results.sort_values('score', ascending=False)
+
+def build_bm25(path, corpus):
+    """Build BM25 indices and save the object to a given path.
+
+    Parameters
+    ----------
+    path : str
+        The file path where we want to save the BM25 object
+    corpus : pd.DataFrame
+        The corpus text for getting the products
+    """
+    if not os.path.exists(path):
+        # tokenize corpus
+        tokenized_products = [text.split() for text in corpus["text"]]
+        bm25 = BM25Okapi(tokenized_products)
+        
+        # save to pickle
+        with open(path, "wb") as f:
+            pickle.dump(bm25, f)
+
+    # load it
+    with open(path, "rb") as f:
+        bm25 = pickle.load(f)
+
+    return bm25
