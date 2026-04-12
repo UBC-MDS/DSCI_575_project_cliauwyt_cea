@@ -1,19 +1,23 @@
 import pandas as pd
 import re
+import numpy as np
+import spacy
+from src.utils import preprocess_spacy
 
 def bm25_tokenize(text):
-    """Tokenize text from corpus, including removing 
-    lowercase letter, number, space, or hyphen and whitespaces. 
+    """Tokenize text from query, including lowercase all letters, 
+    removing number, space, or hyphen and whitespaces. 
 
     Parameters
     ----------
     text : str
         The text we want to tokenize from corpus.
     """
-    text = re.sub(r"[^a-z0-9\s-]", "", text)
+    nlp = spacy.load("en_core_web_md", disable=["parser", "ner"])
+    text = preprocess_spacy(nlp(text))
     return text.split()
 
-def bm25_search(query, bm25, products_df, top_k=3):
+def bm25_search(query, bm25, products_df, top_k=5):
     """Run BM25 search againts persisted BM25 index.
 
     Parameters
@@ -25,7 +29,7 @@ def bm25_search(query, bm25, products_df, top_k=3):
     products_df : pandas.DataFrame
         DataFrame aligned to index row positions. Must include
         ``product_title``, ``text``, and ``rating`` columns.
-    top_k : int, default=3
+    top_k : int, default=5
         Number of nearest neighbors to retrieve.
 
     Returns
@@ -37,5 +41,9 @@ def bm25_search(query, bm25, products_df, top_k=3):
     """
     tokenized_query = bm25_tokenize(query)
     scores = bm25.get_scores(tokenized_query)
-    ranked_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
-    return [(products_df[i], scores[i]) for i in ranked_idx]
+    ranked_idx = np.argsort(scores)[::-1][:top_k]
+    
+    results = products_df.iloc[ranked_idx][['product_title', 'text', 'rating']]
+    results['score'] = scores[ranked_idx]
+    
+    return results.sort_values('score', ascending=False)
