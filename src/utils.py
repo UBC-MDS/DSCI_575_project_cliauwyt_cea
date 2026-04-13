@@ -55,7 +55,7 @@ def preprocess_spacy(
         if (
             token.is_stop == False  # Check if it's not a stopword
             and len(token) > min_token_len  # Check if the word meets minimum threshold
-            and token.pos_ not in irrelevant_pos\
+            and token.pos_ not in irrelevant_pos
             and not token.is_oov
             and token.is_alpha
         ):  # Check if the POS is in the acceptable POS tags
