@@ -52,6 +52,7 @@ source env/bin/activate
 3. Install dependencies
 ```bash
 pip install -r requirements.txt
+python -m spacy download en_core_web_md
 ```
 
 4. Download the data: run the notebook `notebooks/download_data.ipynb`.
