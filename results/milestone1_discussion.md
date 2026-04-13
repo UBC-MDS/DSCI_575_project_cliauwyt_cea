@@ -10,17 +10,21 @@ editor_options:
 
 ![](../img/bar_soap_bm25.jpg) ![](../img/bar_soap_semantic.jpg)
 
-For this query, it seems that BM25 method is slightly better because the
-top 2 results return relevant bar soap products (note that they're
-duplicates) whereas the top 2 results for Semantic method are not
-relevant (they are loofah soap instead of bar soap). Both methods seems
-to confuse "bar soap" contained in reviews versus in the product title,
-hence the mix up of loofah soap that comes with high scores (higher in
-semantic). In BM25 the third and fifth result are not bar soap whereas
-in semantic the first 2 and the fifth result are not bar soaps. Note
-that the bar soap are for dish soap so it might not be what we thought
-getting at first but it is relevant considering the query is not
-specific of what bar soap is for.
+For the query "Bar Soap", it seems that BM25 performed slightly better
+compared to semantic search. The top 2 results from BM25 returned
+relevant bar soap products (though they were duplicates of the same
+product), whereas the semantic search's top 2 results were not relevant,
+returning loofah soap products instead of bar soap.
+
+Both methods seems to confuse "bar soap" appeared in review text versus
+in the product title. This is expected considering our method is to
+combine both review text and product title into one product text. As a
+result, the loofah soap comes with high scores (higher in semantic). In
+BM25, the third and fifth result are not bar soap whereas in semantic
+the first 2 and the fifth result are not bar soaps. Note that the bar
+soap are for dish soap so it might not be what we thought getting at
+first but it is relevant considering the query is not specific of what
+bar soap is for.
 
 ### 2. QUERY: mineral sunscreen for babies (Medium Query)
 
