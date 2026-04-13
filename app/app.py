@@ -57,7 +57,18 @@ def server(input, output, session):
         q = input.query()
 
         if type == "BM25":
-            pass
+            from src.bm25 import bm25_search
+
+            bm25_index_path = 'data/processed/bm25.pkl'
+            results = (
+                bm25_search(q, bm25_index_path, data, top_k=3)
+                .assign(
+                    text=lambda d: d["text"].str.slice(0, 200),
+                    score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),
+                )
+                .rename(columns=lambda c: c.replace("_", " ").title())
+            )
+            return render.DataTable(results)
 
         elif type == "Semantic":
             from src.semantic import semantic_search
