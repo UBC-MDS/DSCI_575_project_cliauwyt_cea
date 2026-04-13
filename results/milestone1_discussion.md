@@ -86,7 +86,7 @@ performed better than BM25 overall, returning 2 relevant hair spray
 products (at positions 3 and 5), whereas BM25 returned only 1 relevant
 result (at position 2). Both methods retrieved products that are related
 but not specific to hair spray, such as hair curlers and other hair
-styling products. This suggest that neither method could precisely
+styling products. This suggests that neither method could precisely
 distinguish hair spray from the broader category of hair care products
 in the corpus. This is likely because the review texts for these
 products share similar vocabulary, making it difficult for both methods
