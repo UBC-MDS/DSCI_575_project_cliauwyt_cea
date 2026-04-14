@@ -5,7 +5,7 @@ import spacy
 import pickle
 
 from rank_bm25 import BM25Okapi
-from src.utils import preprocess_spacy
+from src.preprocess import preprocess_spacy
 
 def bm25_tokenize(text):
     """Tokenize text from query, including lowercase all letters, 
