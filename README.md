@@ -56,7 +56,13 @@ python -m spacy download en_core_web_md
 ```
 
 4. Download the data: run the notebook `notebooks/download_data.ipynb`.
+```bash
+jupyter execute notebooks/download_data.ipynb
+```
 5. Build and save the indices: run the notebook `notebooks/milestone1_results.ipynb`.
+```bash
+jupyter execute notebooks/milestone1_results.ipynb
+```
 
 ### Run the app
 ```bash
