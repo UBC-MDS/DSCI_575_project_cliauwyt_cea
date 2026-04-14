@@ -1,5 +1,5 @@
 from shiny import ui, render, App
-import duckdb
+import pandas as pd
 from sentence_transformers import SentenceTransformer
 import sys
 from pathlib import Path
@@ -8,11 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-c2 = duckdb.connect()
-data = c2.execute(
-    "SELECT * FROM read_parquet('data/raw/merged.parquet')"
-).df()
-data.dropna(subset=['product_title'], inplace=True)
+data = pd.read_csv('data/processed/preprocessed_corpus.csv')
 
 app_ui = ui.page_fillable(
     ui.panel_title("Health and Personal Care Search"),
@@ -63,7 +59,7 @@ def server(input, output, session):
             results = (
                 bm25_search(q, bm25_index_path, data, top_k=3)
                 .assign(
-                    text=lambda d: d["text"].str.slice(0, 200),
+                    review_text=lambda d: d["review_text"].str.slice(0, 200),
                     score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),
                 )
                 .rename(columns=lambda c: c.replace("_", " ").title())
@@ -78,7 +74,7 @@ def server(input, output, session):
             results = (
                 semantic_search(q, semantic_index_path, model, data, top_k=3)
                 .assign(
-                    text=lambda d: d["text"].str.slice(0, 200),
+                    review_text=lambda d: d["review_text"].str.slice(0, 200),
                     score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),
                 )
                 .rename(columns=lambda c: c.replace("_", " ").title())

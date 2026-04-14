@@ -41,12 +41,12 @@ def semantic_search(query, index_path, model, products_df, top_k=5):
     -------
     pandas.DataFrame
         A DataFrame of the top matches containing ``product_title``,
-        ``text``, ``rating``, and ``score``, sorted by ``score`` in
+        ``review_text``, ``rating``, and ``score``, sorted by ``score`` in
         descending order.
     """
     loaded_index = faiss.read_index(index_path)
     query_embedding = model.encode([query])
     scores, indices = loaded_index.search(query_embedding, top_k)
-    results = products_df.iloc[indices[0]][['product_title', 'text', 'rating']]
+    results = products_df.iloc[indices[0]][['product_title', 'review_text', 'rating']]
     results['score'] = scores[0]
     return results.sort_values('score', ascending=False)
