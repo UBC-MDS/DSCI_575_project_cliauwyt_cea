@@ -1,5 +1,6 @@
 import pandas as pd
 import spacy
+import os
 
 
 def make_corpus(df: pd.DataFrame, cols: list, asin: str, meta: list = []) -> pd.DataFrame:
@@ -68,3 +69,30 @@ def preprocess_spacy(
             clean_text.append(lemma.lower())
 
     return " ".join(clean_text)
+
+
+def make_corpus_preprocess(raw_data_path, corpus_path):
+    # Read data and drop missing values
+    import duckdb
+    c2 = duckdb.connect()
+    data = c2.execute(f"SELECT * FROM read_parquet('{raw_data_path}')").df()
+    data.dropna(subset=['product_title'], inplace=True)
+
+    # Extract fields for retrieval
+    cols = ['product_title', 'main_category', 'store', 'title', 'text']
+    meta = ['product_title', 'rating', 'text']
+
+    corpus = make_corpus(df=data, cols=cols, asin="asin", meta=meta)
+
+    # preprocess corpus and save it
+    os.makedirs('data/processed', exist_ok=True)
+    nlp = spacy.load("en_core_web_md", disable=["parser", "ner"])
+    corpus["text"] = [preprocess_spacy(text) for text in nlp.pipe(corpus["text"])]
+    corpus.to_csv(corpus_path)
+
+
+if __name__ == "__main__":
+    raw_data_path = 'data/raw/merged.parquet'
+    corpus_path = 'data/processed/preprocessed_corpus.csv'
+    make_corpus_preprocess(raw_data_path, corpus_path)
+    print(f"Saved corpus to {corpus_path}")
