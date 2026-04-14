@@ -2,7 +2,7 @@ import pandas as pd
 import spacy
 
 
-def make_corpus(df: pd.DataFrame, cols: list, asin: str = None) -> pd.DataFrame:
+def make_corpus(df: pd.DataFrame, cols: list, asin: str, meta: list = []) -> pd.DataFrame:
     """
     Make a corpus DataFrame that combines all given text columns
     into one text column and extract the asin column. The corpus will
@@ -24,6 +24,11 @@ def make_corpus(df: pd.DataFrame, cols: list, asin: str = None) -> pd.DataFrame:
     corpus = pd.DataFrame({})
     corpus['asin'] = df[asin]
     corpus['text']  = df[cols].apply(lambda x: ' '.join(x.dropna().astype(str)), axis=1)
+    for x in meta:
+        if x == 'text':
+            corpus['review_text'] = df[x]
+        else:
+            corpus[x] = df[x]
     return corpus
 
 # Code adapted from DSCI 563 lab 3
