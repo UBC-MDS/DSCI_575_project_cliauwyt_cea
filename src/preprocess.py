@@ -72,6 +72,26 @@ def preprocess_spacy(
 
 
 def make_corpus_preprocess(raw_data_path, corpus_path):
+    """
+    Build and preprocess the retrieval corpus from a raw parquet dataset.
+
+    This function loads the raw merged review-product data, removes rows with
+    missing product titles, combines selected fields into a single retrieval
+    text per product/review, applies spaCy-based token filtering and
+    lemmatizing, and writes the final corpus to a CSV file.
+
+    Parameters
+    -------------
+    raw_data_path : str
+        Path to the input parquet file.
+    corpus_path : str
+        Destination path for the preprocessed corpus CSV.
+
+    Returns
+    -------------
+    None
+        The function saves the preprocessed corpus to ``corpus_path``.
+    """
     # Read data and drop missing values
     import duckdb
     c2 = duckdb.connect()
