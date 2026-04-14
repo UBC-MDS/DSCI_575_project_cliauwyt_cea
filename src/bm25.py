@@ -5,7 +5,7 @@ import spacy
 import pickle
 
 from rank_bm25 import BM25Okapi
-from src.utils import preprocess_spacy
+from src.preprocess import preprocess_spacy
 
 def bm25_tokenize(text):
     """Tokenize text from query, including lowercase all letters, 
@@ -39,7 +39,7 @@ def bm25_search(query, index_path, products_df, top_k=5):
     -------
     pandas.DataFrame
         A DataFrame of the top matches containing ``product_title``,
-        ``text``, ``rating``, and ``score``, sorted by ``score`` in
+        ``review_text``, ``rating``, and ``score``, sorted by ``score`` in
         descending order.
     """
     with open(index_path, "rb") as f:
@@ -48,7 +48,7 @@ def bm25_search(query, index_path, products_df, top_k=5):
     scores = bm25.get_scores(tokenized_query)
     ranked_idx = np.argsort(scores)[::-1][:top_k]
     
-    results = products_df.iloc[ranked_idx][['product_title', 'text', 'rating']]
+    results = products_df.iloc[ranked_idx][['product_title', 'review_text', 'rating']]
     results['score'] = scores[ranked_idx]
     
     return results.sort_values('score', ascending=False)
