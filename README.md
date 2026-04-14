@@ -59,7 +59,13 @@ python -m spacy download en_core_web_md
 ```bash
 jupyter execute notebooks/download_data.ipynb
 ```
-5. Build and save the indices: run the notebook `notebooks/milestone1_results.ipynb`.
+
+5. Preprocess and save the data: 
+```bash
+python src/preprocess.py
+```
+
+6. Build and save the indices: run the notebook `notebooks/milestone1_results.ipynb`.
 ```bash
 jupyter execute notebooks/milestone1_results.ipynb
 ```
