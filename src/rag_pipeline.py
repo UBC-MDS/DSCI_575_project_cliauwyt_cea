@@ -6,16 +6,6 @@ from langchain_huggingface import HuggingFacePipeline
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
-prompt = ChatPromptTemplate.from_template("""You are a helpful Amazon shopping assistant.
-    Answer the question using ONLY the following context (real product reviews + metadata).
-    Always cite the product ASIN when possible.
-
-    Customer Reviews: {context}
-
-    Question: {query}
-
-    Answer based on the reviews above:""")
-
 
 def build_vectorstore(
         corpus_path, vector_path, embeddings,
@@ -53,12 +43,13 @@ def build_context(docs):
     )
 
 
-def rag_pipeline(vectorstore, query, generator, k=5, prompt=prompt):
+def rag_pipeline(vectorstore, generator, query, prompt, k=5):
     retriever = vectorstore.as_retriever(
         search_type="similarity",
         search_kwargs={"k": k}  # Fetch k most similar documents
     )
     llm = HuggingFacePipeline(pipeline=generator)
+    prompt = ChatPromptTemplate.from_template(prompt)
 
     rag_chain = (
         {
