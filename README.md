@@ -60,17 +60,29 @@ python -m spacy download en_core_web_md
 jupyter execute notebooks/download_data.ipynb
 ```
 
-5. Preprocess and save the data: 
-```bash
-python src/preprocess.py
-```
+#### BM25 and semantic indices
 
-6. Build and save the indices: run the notebook `notebooks/milestone1_results.ipynb`.
+Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the data, and build and save BM25 and semantic indices:
 ```bash
 jupyter execute notebooks/milestone1_results.ipynb
 ```
 
+To preprocess and save the data only (overwrites existing file): 
+```bash
+python src/preprocess.py
+```
+
+#### RAG
+
+To build and save vector store (overwrites existing files): 
+```bash
+python src/rag_pipeline.py
+```
+
 ### Run the app
+
+**Prerequisites:** BM25 and semantic indices
+
 ```bash
 shiny run app/app.py
 ```
