@@ -20,7 +20,7 @@ prompt = ChatPromptTemplate.from_template("""You are a helpful Amazon shopping a
 def build_vectorstore(
         corpus_path, vector_path, embeddings,
         content_columns=['text'],
-        metadata_columns=['asin', 'product_title', 'rating']
+        metadata_columns=['asin', 'product_title', 'rating', 'review_text']
 ):
     # Load documents
     loader = CSVLoader(
@@ -47,7 +47,8 @@ def build_context(docs):
     return "\n\n".join(
         f"Product ASIN: {doc.metadata.get('asin', 'N/A')}\n"
         f"Title: {doc.metadata.get('product_title', 'N/A')}\n"
-        f"Rating: {doc.metadata.get('rating', 'N/A')}/5\n"
+        f"Rating: {doc.metadata.get('rating', 'N/A')}/5.0\n"
+        f"Review: {doc.metadata.get('review_text', 'N/A')}\n"
         for doc in docs
     )
 
@@ -71,3 +72,17 @@ def rag_pipeline(vectorstore, query, generator, k=5, prompt=prompt):
 
     answer = rag_chain.invoke(query)
     return answer
+
+if __name__ == "__main__":
+    from langchain_huggingface import HuggingFaceEmbeddings
+
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+    corpus_path = 'data/processed/preprocessed_corpus.csv'
+    vector_path = "data/processed/vector_store"
+
+    build_vectorstore(corpus_path, vector_path, embeddings)
+
+    print(f"Saved vector store to {vector_path}")
+
