@@ -6,21 +6,21 @@ from langchain_huggingface import HuggingFacePipeline
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
-
-def build_vectorstore(
-        corpus_path, vector_path, embeddings,
+def csv_loader(
+        corpus_path,
         content_columns=['text'],
         metadata_columns=['asin', 'product_title', 'rating', 'review_text']
-):
-    # Load documents
+        ):
     loader = CSVLoader(
         corpus_path,
         content_columns=content_columns,
         metadata_columns=metadata_columns,
         encoding='utf-8'
     )
-    documents = loader.load()
+    return loader.load()
 
+
+def build_vectorstore(documents, vector_path, embeddings):
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,
