@@ -3,26 +3,34 @@ import spacy
 import os
 
 
-def make_corpus(df: pd.DataFrame, cols: list, asin: str, meta: list = []) -> pd.DataFrame:
+def make_corpus(
+        df: pd.DataFrame, 
+        cols: list = ['product_title', 'main_category', 'store', 'title', 'text'], 
+        asin: str = 'asin', 
+        meta: list = ['product_title', 'rating', 'text'],
+        ) -> pd.DataFrame:
     """
     Make a corpus DataFrame that combines all given text columns
     into one text column and extract the asin column. The corpus will
-    be for information retrieval.
+    be used for information retrieval and include meta columns for 
+    including more information.
 
     Parameters
     -------------
     df : pd.DataFrame
         clean datadrame
-    cols : list
+    cols : list, default includes all text columns
         list of text columns to combine into one text in corpus
-    asin : str
+    asin : str, default is "asin"
         the identification column in clean data
+    meta : str, default include product title, rating, and review text columns
+        the meta column in clean data that we want to include in corpus
 
     Returns
     -------------
     pd.Dataframe: corpus result
     """
-    corpus = pd.DataFrame({})
+    corpus = pd.DataFrame()
     corpus['asin'] = df[asin]
     corpus['text']  = df[cols].apply(lambda x: ' '.join(x.dropna().astype(str)), axis=1)
     for x in meta:
@@ -70,20 +78,48 @@ def preprocess_spacy(
 
     return " ".join(clean_text)
 
-
-def make_corpus_preprocess(raw_data_path, corpus_path):
+def make_clean_data(raw_data_path, clean_data_path):
     """
-    Build and preprocess the retrieval corpus from a raw parquet dataset.
+    Build and preprocess a clean data set from a raw parquet dataset.
 
-    This function loads the raw merged review-product data, removes rows with
-    missing product titles, combines selected fields into a single retrieval
-    text per product/review, applies spaCy-based token filtering and
-    lemmatizing, and writes the final corpus to a CSV file.
+    This function loads the raw merged review-product data and removes rows with
+    missing product titles.
 
     Parameters
     -------------
     raw_data_path : str
         Path to the input parquet file.
+    clean_data_path : str
+        Destination path for the preprocessed data CSV.
+
+    Returns
+    -------------
+    None
+        The function saves the clean data to ``clean_data_path``.
+    """
+    import duckdb
+
+    c2 = duckdb.connect()
+    data = c2.execute(f"SELECT * FROM read_parquet('{raw_data_path}')").df()
+    data.dropna(subset=['product_title'], inplace=True)
+
+    # save clean data
+    os.makedirs('data/processed', exist_ok=True)
+    data.to_csv(clean_data_path)
+
+def make_corpus_preprocess(clean_data_path, corpus_path):
+    """
+    Build and preprocess the retrieval corpus from a clean dataset.
+
+    This function loads the clean data, combines selected fields into a 
+    single retrieval text per product/review, applies spaCy-based 
+    token filtering and lemmatizing, and writes the final corpus to 
+    a CSV file.
+
+    Parameters
+    -------------
+    clean_data_path : str
+        Path to the clean data file.
     corpus_path : str
         Destination path for the preprocessed corpus CSV.
 
@@ -92,17 +128,9 @@ def make_corpus_preprocess(raw_data_path, corpus_path):
     None
         The function saves the preprocessed corpus to ``corpus_path``.
     """
-    # Read data and drop missing values
-    import duckdb
-    c2 = duckdb.connect()
-    data = c2.execute(f"SELECT * FROM read_parquet('{raw_data_path}')").df()
-    data.dropna(subset=['product_title'], inplace=True)
+    data = pd.read_csv(clean_data_path)
 
-    # Extract fields for retrieval
-    cols = ['product_title', 'main_category', 'store', 'title', 'text']
-    meta = ['product_title', 'rating', 'text']
-
-    corpus = make_corpus(df=data, cols=cols, asin="asin", meta=meta)
+    corpus = make_corpus(df=data)
 
     # preprocess corpus and save it
     os.makedirs('data/processed', exist_ok=True)
@@ -113,6 +141,8 @@ def make_corpus_preprocess(raw_data_path, corpus_path):
 
 if __name__ == "__main__":
     raw_data_path = 'data/raw/merged.parquet'
+    clean_data_path = 'data/processed/clean_data.csv'
+    make_clean_data(raw_data_path, clean_data_path)
     corpus_path = 'data/processed/preprocessed_corpus.csv'
-    make_corpus_preprocess(raw_data_path, corpus_path)
+    make_corpus_preprocess(clean_data_path, corpus_path)
     print(f"Saved corpus to {corpus_path}")
