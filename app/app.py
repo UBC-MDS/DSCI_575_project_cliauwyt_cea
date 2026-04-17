@@ -74,6 +74,25 @@ app_ui = ui.page_fillable(
             max-width: 460px;
             white-space: normal;
         }
+
+        #rag_results table td:nth-child(2),
+        #rag_results table th:nth-child(2) {
+            min-width: 320px;
+            max-width: 320px;
+            white-space: normal;
+        }
+
+        #rag_results table td:nth-child(4),
+        #rag_results table th:nth-child(4) {
+            min-width: 400px;
+            max-width: 400px;
+            white-space: normal;
+        }
+
+        #rag_text {
+            display: block;
+            margin-bottom: 1rem;
+        }
     """),
     ui.navset_pill(  
         ui.nav_panel(
@@ -96,7 +115,7 @@ app_ui = ui.page_fillable(
             ui.layout_columns(
                 ui.input_text("rag_query", "Query"),
                 ui.div(
-                    ui.output_text("rag_text"),
+                    ui.output_ui("rag_text"),
                     ui.output_data_frame("rag_results")
                 ),
                 col_widths=(3, 9)
@@ -138,11 +157,11 @@ def server(input, output, session):
             )
             return render.DataTable(results)
 
-    @render.text
+    @render.ui
     def rag_text():
         q = input.rag_query()
         rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
-        return rag_chain.invoke(q)
+        return ui.markdown(rag_chain.invoke(q))
     
     @render.data_frame
     def rag_results():
