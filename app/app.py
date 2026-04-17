@@ -31,17 +31,25 @@ app_ui = ui.page_fillable(
             white-space: normal;
         }
     """),
-    ui.layout_columns(
-        ui.div(
-            ui.input_radio_buttons(
-                "retrieval_type",
-                "Retreival type",
-                ["BM25", "Semantic"]
-            ),
-            ui.input_text("query", "Query")
+    ui.navset_pill(  
+        ui.nav_panel(
+            "Search Only",
+            ui.layout_columns(
+                ui.div(
+                    ui.input_radio_buttons(
+                        "retrieval_type",
+                        "Retreival type",
+                        ["BM25", "Semantic"]
+                    ),
+                    ui.input_text("query", "Query")
+                ),
+                ui.output_data_frame("search_results"),
+                col_widths=(3, 9)
+            )
         ),
-        ui.output_data_frame("search_results"),
-        col_widths=(3, 9)
+        ui.nav_panel(
+            "RAG Mode"
+        )
     )
 )
 
