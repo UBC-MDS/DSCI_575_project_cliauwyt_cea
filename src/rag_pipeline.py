@@ -2,6 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
+import pandas as pd
 
 
 def load_llm():
@@ -42,6 +43,31 @@ def semantic_retriever(vectorstore, k=5):
         search_kwargs={"k": k}  # Fetch k most similar documents
     )
     return retriever
+
+
+def format_docs_to_df(docs):
+    """Convert LangChain documents to a pandas DataFrame.
+
+    Parameters
+    ----------
+    docs : list of Document
+        List of LangChain Document objects containing metadata fields.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: Product ASIN, Title, Rating, Review.
+    """
+    data = [
+        {
+            "Product ASIN": doc.metadata.get('asin', 'N/A'),
+            "Title": doc.metadata.get('product_title', 'N/A'),
+            "Rating": doc.metadata.get('rating', 'N/A'),
+            "Review": doc.metadata.get('review_text', 'N/A')
+        }
+        for doc in docs
+    ]
+    return pd.DataFrame(data)
 
 
 def build_context(docs):
