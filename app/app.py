@@ -93,8 +93,14 @@ app_ui = ui.page_fillable(
         ),
         ui.nav_panel(
             "RAG Mode",
-            ui.output_text_verbatim("rag_text"),
-            ui.output_data_frame("rag_results")
+            ui.layout_columns(
+                ui.input_text("rag_query", "Query"),
+                ui.div(
+                    ui.output_text("rag_text"),
+                    ui.output_data_frame("rag_results")
+                ),
+                col_widths=(3, 9)
+            )
         )
     )
 )
@@ -134,13 +140,13 @@ def server(input, output, session):
 
     @render.text
     def rag_text():
-        q = input.query()
+        q = input.rag_query()
         rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
         return rag_chain.invoke(q)
     
     @render.data_frame
     def rag_results():
-        q = input.query()
+        q = input.rag_query()
         retreived_docs = ensemble_retriever.invoke(q)
         return render.DataTable(format_docs_to_df(retreived_docs))
 
