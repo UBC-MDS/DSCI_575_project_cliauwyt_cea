@@ -1,6 +1,9 @@
 from shiny import ui, render, App
 import pandas as pd
+from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
+from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
 import sys
 from pathlib import Path
 
@@ -8,7 +11,45 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-data = pd.read_csv('data/processed/preprocessed_corpus.csv')
+from src.vectorstore import csv_loader
+from src.rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain
+from src.hybrid import bm25_retriever, hybrid_retriever
+from src.prompts import prompt
+
+load_dotenv()
+
+corpus_path = 'data/processed/preprocessed_corpus.csv'
+data = pd.read_csv(corpus_path)
+
+# Search
+# BM25 and semantic search
+bm25_index_path = 'data/processed/bm25.pkl'
+semantic_index_path = 'data/processed/embedding.faiss'
+
+# Semantic search embedding model
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# RAG
+# Docs
+docs = csv_loader(corpus_path)
+
+# Embedding
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
+
+# Vectorstore
+vector_path = "data/processed/vector_store"
+vectorstore = FAISS.load_local(
+    vector_path, embeddings, allow_dangerous_deserialization=True
+)
+
+# Retrievers
+ensemble_retriever = hybrid_retriever(bm25_retriever(docs), semantic_retriever(vectorstore))
+
+# LLM
+llm = load_llm()
+
 
 app_ui = ui.page_fillable(
     ui.panel_title("Health and Personal Care Search"),
@@ -48,7 +89,8 @@ app_ui = ui.page_fillable(
             )
         ),
         ui.nav_panel(
-            "RAG Mode"
+            "RAG Mode",
+            ui.output_text_verbatim("rag_results")
         )
     )
 )
@@ -63,7 +105,6 @@ def server(input, output, session):
         if type == "BM25":
             from src.bm25 import bm25_search
 
-            bm25_index_path = 'data/processed/bm25.pkl'
             results = (
                 bm25_search(q, bm25_index_path, data, top_k=3)
                 .assign(
@@ -77,8 +118,6 @@ def server(input, output, session):
         elif type == "Semantic":
             from src.semantic import semantic_search
 
-            model = SentenceTransformer("all-MiniLM-L6-v2")
-            semantic_index_path = 'data/processed/embedding.faiss'
             results = (
                 semantic_search(q, semantic_index_path, model, data, top_k=3)
                 .assign(
@@ -88,6 +127,12 @@ def server(input, output, session):
                 .rename(columns=lambda c: c.replace("_", " ").title())
             )
             return render.DataTable(results)
+
+    @render.text
+    def rag_results():
+        q = input.query()
+        rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
+        return rag_chain.invoke(q)
 
 
 app = App(app_ui, server)
