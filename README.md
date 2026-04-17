@@ -60,6 +60,14 @@ python -m spacy download en_core_web_md
 jupyter execute notebooks/download_data.ipynb
 ```
 
+Expected output files:
+
+```text
+data/raw/meta_raw.parquet
+data/raw/reviews_raw.parquet
+data/raw/merged.parquet
+```
+
 #### BM25 and semantic indices
 
 Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the data, and build and save BM25 and semantic indices:
@@ -67,22 +75,59 @@ Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the
 jupyter execute notebooks/milestone1_results.ipynb
 ```
 
-To preprocess and save the data only (overwrites existing file): 
+Expected output files:
+
+```text
+data/processed/clean_data.csv
+data/processed/preprocessed_corpus.csv
+data/processed/bm25.pkl
+data/processed/embedding.faiss
+```
+
+(Optional) To preprocess and save the data only (overwrites existing file): 
 ```bash
 python src/preprocess.py
 ```
 
+Expected output files:
+
+```text
+data/processed/preprocessed_corpus.csv
+```
+
 #### RAG
 
-To build and save vector store (overwrites existing files): 
+**Prerequisites:** `data/processed/preprocessed_corpus.csv`
+
+1. HuggingFace API key: log into HuggingFace account and create a Read token. Paste the key into `.env` at the root with `HUGGINGFACEHUB_API_TOKEN=<YOUR TOKEN>`.
+
+
+2. Build and save vector store (overwrites existing files): 
 ```bash
-python src/rag_pipeline.py
+python src/vectorstore.py
+```
+
+Expected output directory:
+
+```text
+data/processed/vector_store/
 ```
 
 ### Run the app
 
-**Prerequisites:** BM25 and semantic indices
+**Prerequisites:**
+
+1. Preprocessed data: `data/processed/preprocessed_corpus.csv`
+2. BM25 index: `data/processed/bm25.pkl`
+3. Semantic index: `data/processed/embedding.faiss`
+4. Vector store: `data/processed/vector_store/`
+5. HuggingFace API key in `.env`
+
+
+1. Start the Shiny app:
 
 ```bash
 shiny run app/app.py
 ```
+
+2. Open the local URL shown in the terminal (typically `http://127.0.0.1:8000`).
