@@ -28,6 +28,20 @@ def preprocess_query(query) -> str:
 
 
 def bm25_retriever(docs, k=5):
+    """Create a BM25 retriever from documents.
+
+    Parameters
+    ----------
+    docs : list
+        Documents used to build the BM25 index.
+    k : int, default=5
+        Number of top documents to return for each query.
+
+    Returns
+    -------
+    BM25Retriever
+        Configured BM25 retriever instance.
+    """
     retriever = BM25Retriever.from_documents(
         docs,
         k=k
@@ -36,6 +50,20 @@ def bm25_retriever(docs, k=5):
 
 
 def hybrid_retriever(bm25_retriever, vector_retriever):
+    """Combine sparse and dense retrievers into an ensemble retriever.
+
+    Parameters
+    ----------
+    bm25_retriever : BM25Retriever
+        Sparse retriever based on BM25 scoring.
+    vector_retriever : object
+        Dense similarity retriever from a vector store.
+
+    Returns
+    -------
+    EnsembleRetriever
+        Weighted ensemble retriever that merges both retrieval strategies.
+    """
     # Hybrid ensemble
     ensemble_retriever = EnsembleRetriever(
         retrievers=[bm25_retriever, vector_retriever],
