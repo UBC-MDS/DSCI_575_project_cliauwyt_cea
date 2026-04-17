@@ -12,7 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.vectorstore import csv_loader
-from src.rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain
+from src.rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain, format_docs_to_df
 from src.hybrid import bm25_retriever, hybrid_retriever
 from src.prompts import prompt
 
@@ -45,7 +45,10 @@ vectorstore = FAISS.load_local(
 )
 
 # Retrievers
-ensemble_retriever = hybrid_retriever(bm25_retriever(docs), semantic_retriever(vectorstore))
+ensemble_retriever = hybrid_retriever(
+    bm25_retriever(docs, k=3), 
+    semantic_retriever(vectorstore, k=3)
+)
 
 # LLM
 llm = load_llm()
@@ -90,7 +93,8 @@ app_ui = ui.page_fillable(
         ),
         ui.nav_panel(
             "RAG Mode",
-            ui.output_text_verbatim("rag_results")
+            ui.output_text_verbatim("rag_text"),
+            ui.output_data_frame("rag_results")
         )
     )
 )
@@ -129,10 +133,16 @@ def server(input, output, session):
             return render.DataTable(results)
 
     @render.text
-    def rag_results():
+    def rag_text():
         q = input.query()
         rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
         return rag_chain.invoke(q)
+    
+    @render.data_frame
+    def rag_results():
+        q = input.query()
+        retreived_docs = ensemble_retriever.invoke(q)
+        return render.DataTable(format_docs_to_df(retreived_docs))
 
 
 app = App(app_ui, server)
