@@ -1,39 +1,45 @@
-from langchain_community.document_loaders.csv_loader import CSVLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_huggingface import HuggingFacePipeline
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
-def csv_loader(
-        corpus_path,
-        content_columns=['text'],
-        metadata_columns=['asin', 'product_title', 'rating', 'review_text']
-        ):
-    loader = CSVLoader(
-        corpus_path,
-        content_columns=content_columns,
-        metadata_columns=metadata_columns,
-        encoding='utf-8'
+
+def semantic_retriever(vectorstore, k=5):
+    """Create a semantic similarity retriever from a vector store.
+
+    Parameters
+    ----------
+    vectorstore : object
+        Vector store object.
+    k : int, default=5
+        Number of most similar documents to return.
+
+    Returns
+    -------
+    object
+        Retriever configured for similarity search.
+    """
+    retriever = vectorstore.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": k}  # Fetch k most similar documents
     )
-    return loader.load()
-
-
-def build_vectorstore(documents, vector_path, embeddings):
-    # Split into chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100
-    )
-    split_docs = text_splitter.split_documents(documents)
-
-    # Compute embeddings and store in index
-    vectorstore = FAISS.from_documents(split_docs, embeddings)
-    vectorstore.save_local(vector_path)
+    return retriever
 
 
 def build_context(docs):
+    """Format retrieved documents into a prompt-ready context string.
+
+    Parameters
+    ----------
+    docs : iterable
+        Documents with metadata fields such as ASIN, product title, rating,
+        and review text.
+
+    Returns
+    -------
+    str
+        Single string containing formatted document snippets separated by
+        blank lines.
+    """
     return "\n\n".join(
         f"Product ASIN: {doc.metadata.get('asin', 'N/A')}\n"
         f"Title: {doc.metadata.get('product_title', 'N/A')}\n"
@@ -43,12 +49,23 @@ def build_context(docs):
     )
 
 
-def rag_pipeline(vectorstore, generator, query, prompt, k=5):
-    retriever = vectorstore.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": k}  # Fetch k most similar documents
-    )
-    llm = HuggingFacePipeline(pipeline=generator)
+def initialize_rag_chain(retriever, llm, prompt):
+    """Build a RAG chain that retrieves context and generates an answer.
+
+    Parameters
+    ----------
+    retriever : object
+        Retriever used to fetch relevant documents from the index.
+    llm : object
+        Language model runnable used to generate the final response.
+    prompt : str
+        Prompt template string expecting ``context`` and ``query``.
+
+    Returns
+    -------
+    object
+        Runnable chain that takes a query string and returns model output.
+    """
     prompt = ChatPromptTemplate.from_template(prompt)
 
     rag_chain = (
@@ -60,20 +77,22 @@ def rag_pipeline(vectorstore, generator, query, prompt, k=5):
         | llm
         | StrOutputParser()
     )
+    return rag_chain
 
-    answer = rag_chain.invoke(query)
-    return answer
 
-if __name__ == "__main__":
-    from langchain_huggingface import HuggingFaceEmbeddings
+def invoke_rag_chain(rag_chain, query):
+    """Invoke a prepared RAG chain with a user query.
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-    corpus_path = 'data/processed/preprocessed_corpus.csv'
-    vector_path = "data/processed/vector_store"
+    Parameters
+    ----------
+    rag_chain : object
+        Runnable RAG chain returned by ``initialize_rag_chain``.
+    query : str
+        User question string.
 
-    build_vectorstore(corpus_path, vector_path, embeddings)
-
-    print(f"Saved vector store to {vector_path}")
-
+    Returns
+    -------
+    str
+        Chain output as a string.
+    """
+    return rag_chain.invoke(query)

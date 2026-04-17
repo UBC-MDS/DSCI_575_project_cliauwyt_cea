@@ -2,31 +2,31 @@
 
 ## Building a Smart Amazon Product Query Assistant
 
-In this project, we built a context-aware product search assistant that returns relevant Amazon products from the Health and Personal Care category based on natural language queries. We compared keyword retrieval with BM25 and semantic retrieval with pre-trained embeddings and FAISS.
+In this project, we built a context-aware product search assistant that returns relevant Amazon products from the Health and Personal Care category based on natural language queries. We compared keyword retrieval with BM25 and semantic retrieval with pre-trained embeddings and FAISS. In addition, we incorporate a Large Language Model (LLM) with Retrieval-Augmented Generation (RAG) to generate more context-aware and natural responses by combining retrieved product information with generative capabilities.
 
 ### Data
 
-The data used is from [https://amazon-reviews-2023.github.io/](https://amazon-reviews-2023.github.io/). It consists of reviews data and metadata about the products. As the dataset is very large, we limited the number of rows to 20000.
+The data used is from [https://amazon-reviews-2023.github.io/](https://amazon-reviews-2023.github.io/). It consists of review data and metadata about the products. As the dataset is very large, we limited the number of rows to 20000.
 
 ### Preprocessing
 
 We only retained records where the name of the product (`product_title`) is available. We build the corpus from the following fields from the metadata: `product_title`, `main_category`, `store`, and the `title` and `text` from reviews data.
 
-For preprocessing, we removed stop words, tokens that are shorter than two characters, irrelevant parts of speech, no vector (out of vocabulary), and any non-alphabetic characters. We lemmatized the words and converted them to lower case.
+For preprocessing, we removed stop words, tokens that are shorter than two characters, irrelevant parts of speech, no vector (out of vocabulary), and any non-alphabetic characters. We lemmatized the words and converted them to lowercase.
 
 ### Retrieval Workflows
 
 #### BM25
 
-BM25 is an enhanced TF-IDF (term frequency-inverse document frequency) vectorisation. Each document (product comprising metadata and review data) is represented by a vector of the same length as the vocabulary (sparse) with TF-IDF scores for each word. This is saved as an index.
+BM25 is an enhanced TF-IDF (term frequency-inverse document frequency) vectorization. Each document (product comprising metadata and review data) is represented by a vector of the same length as the vocabulary (sparse) with TF-IDF scores for each word. This is saved as an index.
 
-At retrieval time, the query is vectorised in the same way and BM25 calculates a score for each document. We retrieve the top k documents with the highest scores.
+At retrieval time, the query is vectorized in the same way, and BM25 calculates a score for each document. We retrieve the top k documents with the highest scores.
 
 #### Semantic
 
 Each document is represented as a dense vector of pre-trained embeddings. This is saved as an index with FAISS. 
 
-At retrieval time, the query is vectorised in the same way and the FAISS index is used to perform approximate nearest neighbour search to retrieve the top k similar documents.
+At retrieval time, the query is vectorized in the same way and the FAISS index is used to perform approximate nearest neighbour search to retrieve the top k similar documents.
 
 ## Instructions
 
@@ -40,7 +40,7 @@ git clone https://github.com/UBC-MDS/DSCI_575_project_cliauwyt_cea
 cd DSCI_575_project_cliauwyt_cea
 ```
 
-2. Create and activate virtual environment
+2. Create and activate a virtual environment
 ```bash
 python -m venv env
 # On Windows:
@@ -60,6 +60,14 @@ python -m spacy download en_core_web_md
 jupyter execute notebooks/download_data.ipynb
 ```
 
+Expected output files:
+
+```text
+data/raw/meta_raw.parquet
+data/raw/reviews_raw.parquet
+data/raw/merged.parquet
+```
+
 #### BM25 and semantic indices
 
 Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the data, and build and save BM25 and semantic indices:
@@ -67,22 +75,61 @@ Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the
 jupyter execute notebooks/milestone1_results.ipynb
 ```
 
-To preprocess and save the data only (overwrites existing file): 
+Expected output files:
+
+```text
+data/processed/clean_data.csv
+data/processed/preprocessed_corpus.csv
+data/processed/bm25.pkl
+data/processed/embedding.faiss
+```
+
+(Optional) To preprocess and save the data only (overwrites existing file): 
 ```bash
 python src/preprocess.py
 ```
 
+Expected output files:
+
+```text
+data/processed/preprocessed_corpus.csv
+```
+
 #### RAG
 
-To build and save vector store (overwrites existing files): 
+**Prerequisites:** `data/processed/preprocessed_corpus.csv`
+
+1. HuggingFace API key: log into HuggingFace account and create a `read` token. Go to your profile > Settings > Access Tokens > Create new token > Select `Read` Token type > name your token > Create token. More information can be found in [here](https://huggingface.co/docs/hub/security-tokens).
+
+2. Paste the key into `.env` at the root with `HUGGINGFACEHUB_API_TOKEN=<YOUR TOKEN>`.
+
+
+3. Build and save vector store (overwrites existing files): 
 ```bash
-python src/rag_pipeline.py
+python src/vectorstore.py
+```
+
+Expected output directory:
+
+```text
+data/processed/vector_store/
 ```
 
 ### Run the app
 
-**Prerequisites:** BM25 and semantic indices
+**Prerequisites:**
+
+1. Preprocessed data: `data/processed/preprocessed_corpus.csv`
+2. BM25 index: `data/processed/bm25.pkl`
+3. Semantic index: `data/processed/embedding.faiss`
+4. Vector store: `data/processed/vector_store/`
+5. HuggingFace API key in `.env`
+
+
+1. Start the Shiny app:
 
 ```bash
 shiny run app/app.py
 ```
+
+2. Open the local URL shown in the terminal (typically `http://127.0.0.1:8000`).
