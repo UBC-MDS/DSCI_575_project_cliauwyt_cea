@@ -99,19 +99,3 @@ def initialize_rag_chain(retriever, llm, prompt):
     return rag_chain
 
 
-def invoke_rag_chain(rag_chain, query):
-    """Invoke a prepared RAG chain with a user query.
-
-    Parameters
-    ----------
-    rag_chain : object
-        Runnable RAG chain returned by ``initialize_rag_chain``.
-    query : str
-        User question string.
-
-    Returns
-    -------
-    str
-        Chain output as a string.
-    """
-    return rag_chain.invoke(query)
