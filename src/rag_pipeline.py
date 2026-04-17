@@ -1,6 +1,25 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
+
+
+def load_llm():
+    """Initialize and return the configured Hugging Face chat LLM.
+
+    Returns
+    -------
+    ChatHuggingFace
+        Chat model wrapper backed by a Hugging Face inference endpoint.
+    """
+    llm_endpoint = HuggingFaceEndpoint(
+        repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+        task="text-generation",
+        max_new_tokens=512,
+        provider="novita"
+    )
+
+    return ChatHuggingFace(llm=llm_endpoint)
 
 
 def semantic_retriever(vectorstore, k=5):
