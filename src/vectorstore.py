@@ -75,8 +75,11 @@ if __name__ == "__main__":
     # Define input corpus location and output vector store directory.
     corpus_path = 'data/processed/preprocessed_corpus.csv'
     vector_path = "data/processed/vector_store"
+    
+    # Load CSV as Documents
+    docs = csv_loader(corpus_path)
 
-    # Build the FAISS index and persist it to disk.
-    build_vectorstore(corpus_path, vector_path, embeddings)
+    # Build the vector store and persist it to disk.
+    build_vectorstore(docs, vector_path, embeddings)
 
     print(f"Saved vector store to {vector_path}")
