@@ -1,8 +1,15 @@
 import spacy 
-from src.bm25 import preprocess_spacy
-from src.rag_pipeline import semantic_retriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.bm25 import preprocess_spacy
+from src.rag_pipeline import semantic_retriever
 
 
 def preprocess_query(query) -> str:
@@ -70,3 +77,48 @@ def hybrid_retriever(bm25_retriever, vector_retriever):
         weights=[0.4, 0.6]
     )
     return ensemble_retriever
+
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    from langchain_community.vectorstores import FAISS
+    from langchain_huggingface import HuggingFaceEmbeddings
+    from vectorstore import csv_loader
+    from rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain
+    from prompts import prompt
+
+    load_dotenv()
+
+    # Docs
+    corpus_path = 'data/processed/preprocessed_corpus.csv'
+    docs = csv_loader(corpus_path)
+
+    # Embedding
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    # Vectorstore
+    vector_path = "data/processed/vector_store"
+    vectorstore = FAISS.load_local(
+        vector_path, embeddings, allow_dangerous_deserialization=True
+    )
+
+    # Retrievers
+    ensemble_retriever = hybrid_retriever(
+        bm25_retriever(docs, k=3),
+        semantic_retriever(vectorstore, k=3)
+    )
+
+    # LLM
+    llm = load_llm()
+
+    # Defend against missing or blank CLI input.
+    if len(sys.argv) < 2 or not any(arg.strip() for arg in sys.argv[1:]):
+        print('Usage: python src/hybrid.py "<query>"')
+        sys.exit(1)
+
+    q = " ".join(sys.argv[1:]).strip()
+
+    rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
+    print("Answer:", rag_chain.invoke(q))

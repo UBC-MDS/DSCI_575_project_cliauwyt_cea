@@ -130,6 +130,16 @@ Expected output directory:
 data/processed/vector_store/
 ```
 
+4. To run RAG pipeline:
+```bash
+python src/rag_pipeline.py "<query>"
+```
+
+5. To run hybrid RAG pipeline:
+```bash
+python src/hybrid.py "<query>"
+```
+
 ### Run the app
 
 **Prerequisites:**

@@ -125,3 +125,39 @@ def initialize_rag_chain(retriever, llm, prompt):
     return rag_chain
 
 
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    from langchain_community.vectorstores import FAISS
+    from langchain_huggingface import HuggingFaceEmbeddings
+    from prompts import prompt
+    import sys
+
+    load_dotenv()
+
+    # Embedding
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    # Vectorstore
+    vector_path = "data/processed/vector_store"
+    vectorstore = FAISS.load_local(
+        vector_path, embeddings, allow_dangerous_deserialization=True
+    )
+
+    # Retrievers
+    vector_retriever = semantic_retriever(vectorstore)
+
+    # LLM
+    llm = load_llm()
+
+    # Defend against missing or blank CLI input.
+    if len(sys.argv) < 2 or not any(arg.strip() for arg in sys.argv[1:]):
+        print('Usage: python src/rag_pipeline.py "<query>"')
+        sys.exit(1)
+
+    q = " ".join(sys.argv[1:]).strip()
+
+    rag_chain = initialize_rag_chain(vector_retriever, llm, prompt)
+    print("Answer:", rag_chain.invoke(q))
+
