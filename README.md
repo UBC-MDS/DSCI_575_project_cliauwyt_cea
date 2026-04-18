@@ -28,6 +28,21 @@ Each document is represented as a dense vector of pre-trained embeddings. This i
 
 At retrieval time, the query is vectorized in the same way and the FAISS index is used to perform approximate nearest neighbour search to retrieve the top k similar documents.
 
+## RAG 
+
+### Model Selection
+The initial choice of the model was prototyped with Qwen3.5-0.8B, as it is lightweight. However, the performance was poor with a lot of repeated results. Then, we switched to `Meta-Llama-3-8B-Instruct` via HuggingFace API. Instruct models are tuned to follow instructions. We chose an 8B model as it is a good balance between performance and latency. The choice is good as we do not need additional storage for our laptop.
+
+### RAG Workflow with Semantic Retriever
+The RAG workflow with semantic retrieval uses the FAISS-based dense retriever to find the top k most semantically similar documents to the user query. These retrieved documents are then passed as context to the LLM (`Meta-Llama-3-8B-Instruct`), which generates a coherent and context-aware response based solely on the semantic search results.
+
+### Hybrid RAG Workflow
+The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble retriever using weighted scoring (BM25: 0.4, Semantic: 0.6), leveraging the strengths of both keyword matching and semantic similarity to retrieve the most relevant documents. The retrieved documents are then passed to the LLM (`Meta-Llama-3-8B-Instruct`) along with the user query and a structured prompt, which instructs the model to generate a natural language product recommendation grounded in the retrieved review content.
+
+### Hybrid RAG Workflow Diagram
+
+![](img/rag_diagram.png)
+
 ## Instructions
 
 ### Setup
