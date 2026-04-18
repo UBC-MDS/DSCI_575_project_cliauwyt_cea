@@ -6,7 +6,10 @@ We initially prototyped with Qwen3.5-0.8B as it is lightweight. However, the per
 
 ## Step 2.3: Prompts
 
-Prompts tried: 1. Default including instruction to follow context 2. Just assigning a role without instruction to follow context 3. Default and tell the model to be concise
+Prompts tried: 
+1. Default including instruction to follow context 
+2. Just assigning a role without instruction to follow context 
+3. Default and tell the model to be concise
 
 The model was good at following the instructions of prompt 3 - responses were restricted to one line. Even though it was not explicitly stated in prompt 2, the model still restricted its responses to the context, possible because another part of the prompt stated "answer based on the reviews above".
 
@@ -16,7 +19,7 @@ Note: we use the original prompt for evaluation.
 
 ### Query 1: Bar Soap
 
-![](images/bar_soap_rag.png)
+![](../img/M2/bar_soap_rag.png)
 
 In the "bar soap" query, the pipeline retrieved one irrelevant product (a mesh soap saver pouch) alongside two correctly matched bar soap products. This indicates that the retrieval stage occasionally surfaces loosely related items rather than exact matches. Despite this, the LLM showed some good reasoning by generating a helpful response like correctly acknowledging their specific use cases such as laundry cleaning.
 
