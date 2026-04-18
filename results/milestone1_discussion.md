@@ -8,7 +8,7 @@ editor_options:
 
 ### 1. QUERY: Bar Soap (Easy Query)
 
-![](../img/bar_soap_bm25.jpg) ![](../img/bar_soap_semantic.jpg)
+![](../img/M1/bar_soap_bm25.jpg) ![](../img/M1/bar_soap_semantic.jpg)
 
 For the query "Bar Soap", BM25 performed slightly better compared to
 semantic search. For the user's intent, the top 2 results from BM25
@@ -33,7 +33,7 @@ intended use, these results can still be considered relevant.
 
 ### 2. QUERY: mineral sunscreen for babies (Medium Query)
 
-![](../img/sunscreen_bm25.jpg) ![](../img/sunscreen_semantic.jpg)
+![](../img/M1/sunscreen_bm25.jpg) ![](../img/M1/sunscreen_semantic.jpg)
 
 For the query "sunscreen for babies", both methods failed to retrieve
 relevant results since neither of them returned any actual sunscreen
@@ -51,7 +51,8 @@ method.
 
 ### 3. QUERY: The best air humidifer with essential oil (Hard Query)
 
-![](../img/humidifier_bm25.jpg) ![](../img//humidifier_semantic.jpg)
+![](../img/M1/humidifier_bm25.jpg)
+![](../img/M1/humidifier_semantic.jpg)
 
 For query "The best humidifier with essential oil", both methods
 performed poorly overall, with semantic search performing slightly
@@ -79,7 +80,7 @@ methods to fall short.
 
 ### 4. QUERY: hair spray that last more than 6 hours (Medium/Hard Query)
 
-![](../img/hairspray_bm25.jpg) ![](../img/hairspray_semantic.jpg)
+![](../img/M1/hairspray_bm25.jpg) ![](../img/M1/hairspray_semantic.jpg)
 
 For the query "hair spray that lasts more than 6 hours", semantic search
 performed better than BM25 overall, returning 2 relevant hair spray
@@ -108,7 +109,7 @@ partially useful at best.
 
 ### 5. QUERY: sunrise lamp that will help me to wake up in the morning (Medium/Hard Query)
 
-![](../img/lamp_bm25.jpg) ![](../img/lamp_semantic.jpg)
+![](../img/M1/lamp_bm25.jpg) ![](../img/M1/lamp_semantic.jpg)
 
 For the query "sunrise lamp", semantic search performed notably better
 than BM25, returning results that were all related to lamps across its
