@@ -2,14 +2,15 @@
 
 ## Step 1: Model Choice
 
-TBD
-
-## Step 2.1: Retrieval
-
-Raw retrieval gives a list of documents with content and metadata as the columns we defined.
+We initially prototyped with Qwen3.5-0.8B as it is lightweight. However, the performance was poor (repeated text) and we switched to Meta-Llama-3-8B-Instruct via HuggingFace API. Instruct models are tuned to follow instructions. We chose a 8B model as it is a good balance between performance and latency.
 
 ## Step 2.3: Prompts
 
-Preliminary discussion: I noticed the LLM would repeat itself, but adding "never repeat yourself" to the system prompt didn't seem to help much.
+Prompts tried:
+1. Default including instruction to follow context
+2. Just assigning a role without instruction to follow context
+3. Default and tell the model to be concise
+
+The model was good at following the instructions of prompt 3 - responses were restricted to one line. Even though it was not explicitly stated in prompt 2, the model still restricted its responses to the context, possible because another part of the prompt stated "answer based on the reviews above". 
 
 ## Step 5: RAG evaluation

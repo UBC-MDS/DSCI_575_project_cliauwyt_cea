@@ -1,6 +1,26 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
+import pandas as pd
+
+
+def load_llm():
+    """Initialize and return the configured Hugging Face chat LLM.
+
+    Returns
+    -------
+    ChatHuggingFace
+        Chat model wrapper backed by a Hugging Face inference endpoint.
+    """
+    llm_endpoint = HuggingFaceEndpoint(
+        repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+        task="text-generation",
+        max_new_tokens=512,
+        provider="novita"
+    )
+
+    return ChatHuggingFace(llm=llm_endpoint)
 
 
 def semantic_retriever(vectorstore, k=5):
@@ -23,6 +43,31 @@ def semantic_retriever(vectorstore, k=5):
         search_kwargs={"k": k}  # Fetch k most similar documents
     )
     return retriever
+
+
+def format_docs_to_df(docs):
+    """Convert LangChain documents to a pandas DataFrame.
+
+    Parameters
+    ----------
+    docs : list of Document
+        List of LangChain Document objects containing metadata fields.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: Product ASIN, Title, Rating, Review.
+    """
+    data = [
+        {
+            "Product ASIN": doc.metadata.get('asin', 'N/A'),
+            "Title": doc.metadata.get('product_title', 'N/A'),
+            "Rating": doc.metadata.get('rating', 'N/A'),
+            "Review": doc.metadata.get('review_text', 'N/A')
+        }
+        for doc in docs
+    ]
+    return pd.DataFrame(data)
 
 
 def build_context(docs):
@@ -80,19 +125,3 @@ def initialize_rag_chain(retriever, llm, prompt):
     return rag_chain
 
 
-def invoke_rag_chain(rag_chain, query):
-    """Invoke a prepared RAG chain with a user query.
-
-    Parameters
-    ----------
-    rag_chain : object
-        Runnable RAG chain returned by ``initialize_rag_chain``.
-    query : str
-        User question string.
-
-    Returns
-    -------
-    str
-        Chain output as a string.
-    """
-    return rag_chain.invoke(query)
