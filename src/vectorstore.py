@@ -66,6 +66,23 @@ def build_vectorstore(documents, vector_path, embeddings):
 
 
 def load_vectorstore(vector_path):
+    """Load a previously saved FAISS vector store from disk.
+
+    Parameters
+    ----------
+    vector_path : str
+        Directory containing the persisted FAISS index files.
+
+    Returns
+    -------
+    FAISS
+        Loaded vector store, ready for similarity search or retrieval.
+
+    Notes
+    -----
+    The embedding model used here must match the one used when the index was
+    created, otherwise the stored vectors will not align with new queries.
+    """
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
