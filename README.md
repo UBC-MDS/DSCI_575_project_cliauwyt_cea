@@ -50,12 +50,23 @@ The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble re
 **Prerequisites:** Python 3.9 or higher
 
 1. Clone the repo
+
+Option 1 (Need to input your GitHub username and Personal Access Token for the password):
 ```bash
 git clone https://github.com/UBC-MDS/DSCI_575_project_cliauwyt_cea
+```
+Option 2 (Use your SSH key):
+```bash
+git clone git@github.com:UBC-MDS/DSCI_575_project_cliauwyt_cea.git
+```
+Note: for option 2 you need to have SSH set up with GitHub first
+
+2. Head to the project repository folder
+```bash
 cd DSCI_575_project_cliauwyt_cea
 ```
 
-2. Create and activate a virtual environment
+3. Create and activate a virtual environment
 ```bash
 python -m venv env
 # On Windows:
@@ -64,13 +75,13 @@ env\Scripts\activate
 source env/bin/activate
 ```
 
-3. Install dependencies
+4. Install dependencies
 ```bash
 pip install -r requirements.txt
 python -m spacy download en_core_web_md
 ```
 
-4. Download the data: run the notebook `notebooks/download_data.ipynb`.
+5. Download the data: run the notebook `notebooks/download_data.ipynb`.
 ```bash
 jupyter execute notebooks/download_data.ipynb
 ```
