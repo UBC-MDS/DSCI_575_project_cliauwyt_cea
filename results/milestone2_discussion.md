@@ -2,14 +2,9 @@
 
 ## Step 1: Model Choice
 
-TBD
-
-## Step 2.1: Retrieval
-
-Raw retrieval gives a list of documents with content and metadata as the columns we defined.
+We initially prototyped with Qwen3.5-0.8B as it is lightweight. However, the performance was poor (repeated text) and we switched to Meta-Llama-3-8B-Instruct via HuggingFace API. Instruct models are tuned to follow instructions. We chose a 8B model as it is a good balance between performance and latency.
 
 ## Step 2.3: Prompts
 
-Preliminary discussion: I noticed the LLM would repeat itself, but adding "never repeat yourself" to the system prompt didn't seem to help much.
 
 ## Step 5: RAG evaluation
