@@ -43,6 +43,11 @@ The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble re
 
 ![](img/rag_diagram.png)
 
+### Note on functions
+Retriever functions (`semantic_retriever`, `bm25_retriever`, `hybrid_retriever`) return retriever objects. This is more modular and allows the output of the functions to be directly fed into `initialize_rag_chain`. To obtain a ranked list of documents, call `retriever.invoke(<query>)`.
+
+Similarly, `initialize_rag_chain` returns a RAG chain. To obtain results, call `rag_chain.invoke(<query>)`. Both semantic and hybrid RAG use this function with a different `retriever` input.
+
 ## Instructions
 
 ### Setup
