@@ -94,6 +94,23 @@ def build_context(docs):
     )
 
 
+def prompt_template(prompt):
+    """Convert a template string into a chat prompt object.
+
+    Parameters
+    ----------
+    prompt : str
+        Full prompt template (system and user) containing placeholders such as 
+        ``context`` and ``query``.
+
+    Returns
+    -------
+    ChatPromptTemplate
+        LangChain chat prompt ready to be composed into the RAG chain.
+    """
+    return ChatPromptTemplate.from_template(prompt)
+
+
 def initialize_rag_chain(retriever, llm, prompt):
     """Build a RAG chain that retrieves context and generates an answer.
 
@@ -104,14 +121,15 @@ def initialize_rag_chain(retriever, llm, prompt):
     llm : object
         Language model runnable used to generate the final response.
     prompt : str
-        Prompt template string expecting ``context`` and ``query``.
+        Prompt template string (system and user) expecting ``context`` and
+        ``query``.
 
     Returns
     -------
     object
         Runnable chain that takes a query string and returns model output.
     """
-    prompt = ChatPromptTemplate.from_template(prompt)
+    prompt = prompt_template(prompt)
 
     rag_chain = (
         {
@@ -124,4 +142,32 @@ def initialize_rag_chain(retriever, llm, prompt):
     )
     return rag_chain
 
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    from vectorstore import load_vectorstore
+    from prompts import prompt
+    import sys
+
+    load_dotenv()
+
+    # Vector store
+    vector_path = "data/processed/vector_store"
+    vectorstore = load_vectorstore(vector_path)
+
+    # Retrievers
+    vector_retriever = semantic_retriever(vectorstore)
+
+    # LLM
+    llm = load_llm()
+
+    # Defend against missing or blank CLI input.
+    if len(sys.argv) < 2 or not any(arg.strip() for arg in sys.argv[1:]):
+        print('Usage: python src/rag_pipeline.py "<query>"')
+        sys.exit(1)
+
+    q = " ".join(sys.argv[1:]).strip()
+
+    rag_chain = initialize_rag_chain(vector_retriever, llm, prompt)
+    print("Answer:", rag_chain.invoke(q))
 

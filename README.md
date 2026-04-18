@@ -43,6 +43,11 @@ The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble re
 
 ![](img/rag_diagram.png)
 
+### Note on functions
+Retriever functions (`semantic_retriever`, `bm25_retriever`, `hybrid_retriever`) return retriever objects. This is more modular and allows the output of the functions to be directly fed into `initialize_rag_chain`. To obtain a ranked list of documents, call `retriever.invoke(<query>)`.
+
+Similarly, `initialize_rag_chain` returns a RAG chain. To obtain results, call `rag_chain.invoke(<query>)`. Both semantic and hybrid RAG use this function with a different `retriever` input.
+
 ## Instructions
 
 ### Setup
@@ -50,12 +55,23 @@ The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble re
 **Prerequisites:** Python 3.9 or higher
 
 1. Clone the repo
+
+Option 1 (Need to input your GitHub username and Personal Access Token for the password):
 ```bash
 git clone https://github.com/UBC-MDS/DSCI_575_project_cliauwyt_cea
+```
+Option 2 (Use your SSH key):
+```bash
+git clone git@github.com:UBC-MDS/DSCI_575_project_cliauwyt_cea.git
+```
+Note: for option 2 you need to have SSH set up with GitHub first
+
+2. Head to the project repository folder
+```bash
 cd DSCI_575_project_cliauwyt_cea
 ```
 
-2. Create and activate a virtual environment
+3. Create and activate a virtual environment
 ```bash
 python -m venv env
 # On Windows:
@@ -64,13 +80,13 @@ env\Scripts\activate
 source env/bin/activate
 ```
 
-3. Install dependencies
+4. Install dependencies
 ```bash
 pip install -r requirements.txt
 python -m spacy download en_core_web_md
 ```
 
-4. Download the data: run the notebook `notebooks/download_data.ipynb`.
+5. Download the data: run the notebook `notebooks/download_data.ipynb`.
 ```bash
 jupyter execute notebooks/download_data.ipynb
 ```
@@ -128,6 +144,16 @@ Expected output directory:
 
 ```text
 data/processed/vector_store/
+```
+
+4. To run RAG pipeline:
+```bash
+python src/rag_pipeline.py "<query>"
+```
+
+5. To run hybrid RAG pipeline:
+```bash
+python src/hybrid.py "<query>"
 ```
 
 ### Run the app

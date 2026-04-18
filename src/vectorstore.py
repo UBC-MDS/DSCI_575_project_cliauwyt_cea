@@ -1,6 +1,7 @@
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
 
 
 def csv_loader(
@@ -64,9 +65,35 @@ def build_vectorstore(documents, vector_path, embeddings):
     vectorstore.save_local(vector_path)
 
 
-if __name__ == "__main__":
-    from langchain_huggingface import HuggingFaceEmbeddings
+def load_vectorstore(vector_path):
+    """Load a previously saved FAISS vector store from disk.
 
+    Parameters
+    ----------
+    vector_path : str
+        Directory containing the persisted FAISS index files.
+
+    Returns
+    -------
+    FAISS
+        Loaded vector store, ready for similarity search or retrieval.
+
+    Notes
+    -----
+    The embedding model used here must match the one used when the index was
+    created, otherwise the stored vectors will not align with new queries.
+    """
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    vectorstore = FAISS.load_local(
+        vector_path, embeddings, allow_dangerous_deserialization=True
+    )
+    return vectorstore
+
+
+if __name__ == "__main__":
     # Initialize the sentence-transformer model used for embeddings.
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
