@@ -127,23 +127,15 @@ def initialize_rag_chain(retriever, llm, prompt):
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
-    from langchain_community.vectorstores import FAISS
-    from langchain_huggingface import HuggingFaceEmbeddings
+    from vectorstore import load_vectorstore
     from prompts import prompt
     import sys
 
     load_dotenv()
 
-    # Embedding
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    # Vectorstore
+    # Vector store
     vector_path = "data/processed/vector_store"
-    vectorstore = FAISS.load_local(
-        vector_path, embeddings, allow_dangerous_deserialization=True
-    )
+    vectorstore = load_vectorstore(vector_path)
 
     # Retrievers
     vector_retriever = semantic_retriever(vectorstore)

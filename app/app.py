@@ -2,8 +2,6 @@ from shiny import ui, render, App
 import pandas as pd
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 import sys
 from pathlib import Path
 
@@ -11,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.vectorstore import csv_loader
+from src.vectorstore import csv_loader, load_vectorstore
 from src.rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain, format_docs_to_df
 from src.hybrid import bm25_retriever, hybrid_retriever
 from src.prompts import prompt
@@ -30,19 +28,10 @@ semantic_index_path = 'data/processed/embedding.faiss'
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # RAG
-# Docs
+# Docs and vector store
 docs = csv_loader(corpus_path)
-
-# Embedding
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
-# Vectorstore
 vector_path = "data/processed/vector_store"
-vectorstore = FAISS.load_local(
-    vector_path, embeddings, allow_dangerous_deserialization=True
-)
+vectorstore = load_vectorstore(vector_path)
 
 # Retrievers
 ensemble_retriever = hybrid_retriever(

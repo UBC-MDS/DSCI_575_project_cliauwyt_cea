@@ -81,9 +81,7 @@ def hybrid_retriever(bm25_retriever, vector_retriever):
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
-    from langchain_community.vectorstores import FAISS
-    from langchain_huggingface import HuggingFaceEmbeddings
-    from vectorstore import csv_loader
+    from vectorstore import csv_loader, load_vectorstore
     from rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain
     from prompts import prompt
 
@@ -93,16 +91,9 @@ if __name__ == "__main__":
     corpus_path = 'data/processed/preprocessed_corpus.csv'
     docs = csv_loader(corpus_path)
 
-    # Embedding
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    # Vectorstore
+    # Vector store
     vector_path = "data/processed/vector_store"
-    vectorstore = FAISS.load_local(
-        vector_path, embeddings, allow_dangerous_deserialization=True
-    )
+    vectorstore = load_vectorstore(vector_path)
 
     # Retrievers
     ensemble_retriever = hybrid_retriever(
