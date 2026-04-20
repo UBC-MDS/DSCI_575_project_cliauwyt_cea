@@ -1,7 +1,8 @@
 import faiss
+import os
 
 
-def build_semantic_index(corpus, model, index_path):
+def build_semantic_index(corpus, model, index_path, overwrite=False):
     """Build and persist a FAISS L2 index from corpus text embeddings.
 
     Parameters
@@ -13,11 +14,19 @@ def build_semantic_index(corpus, model, index_path):
         Embedding model used to encode corpus text into dense vectors.
     index_path : str
         Destination path where the FAISS index will be written.
+    overwrite : bool, default=False
+        If True, overwrite existing FAISS index at the given path.
+        If False, skip building if the index already exists.
     """
-    product_embeddings = model.encode(corpus.text.tolist())
-    index = faiss.IndexFlatL2(product_embeddings.shape[1])
-    index.add(product_embeddings)
-    faiss.write_index(index, index_path)
+    if not os.path.exists(index_path) or overwrite:
+        product_embeddings = model.encode(corpus.text.tolist())
+        index = faiss.IndexFlatL2(product_embeddings.shape[1])
+        index.add(product_embeddings)
+        faiss.write_index(index, index_path)
+        print(f"Saved semantic index to {index_path}")
+
+    else:
+        print(f"{index_path} already exists, skipping.")
 
 
 def semantic_search(query, index_path, model, products_df, top_k=5):
@@ -50,3 +59,16 @@ def semantic_search(query, index_path, model, products_df, top_k=5):
     results = products_df.iloc[indices[0]][['product_title', 'review_text', 'rating']]
     results['score'] = scores[0]
     return results.sort_values('score', ascending=False)
+
+
+if __name__ == "__main__":
+    from sentence_transformers import SentenceTransformer
+    import pandas as pd
+
+    corpus_path = "data/processed/preprocessed_corpus.csv"
+    corpus = pd.read_csv(corpus_path)
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    semantic_index_path = 'data/processed/embedding.faiss'
+
+    build_semantic_index(corpus, model, semantic_index_path, overwrite=True)

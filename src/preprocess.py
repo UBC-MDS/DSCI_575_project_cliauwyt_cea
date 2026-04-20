@@ -106,6 +106,8 @@ def make_clean_data(raw_data_path, clean_data_path):
     # save clean data
     os.makedirs('data/processed', exist_ok=True)
     data.to_csv(clean_data_path)
+    print(f"Saved clean data to {clean_data_path}")
+
 
 def make_corpus_preprocess(clean_data_path, corpus_path):
     """
@@ -137,6 +139,7 @@ def make_corpus_preprocess(clean_data_path, corpus_path):
     nlp = spacy.load("en_core_web_md", disable=["parser", "ner"])
     corpus["text"] = [preprocess_spacy(text) for text in nlp.pipe(corpus["text"])]
     corpus.to_csv(corpus_path)
+    print(f"Saved preprocessed corpus to {corpus_path}")
 
 
 if __name__ == "__main__":
@@ -145,4 +148,3 @@ if __name__ == "__main__":
     make_clean_data(raw_data_path, clean_data_path)
     corpus_path = 'data/processed/preprocessed_corpus.csv'
     make_corpus_preprocess(clean_data_path, corpus_path)
-    print(f"Saved corpus to {corpus_path}")
