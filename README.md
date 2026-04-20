@@ -101,7 +101,22 @@ data/raw/merged.parquet
 
 #### BM25 and semantic indices
 
-Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the data, and build and save BM25 and semantic indices:
+1. To preprocess and save the data (overwrites existing file): 
+```bash
+python src/preprocess.py
+```
+
+2. To build and save BM25 index (overwrites existing file):
+```bash
+python src/bm25.py
+```
+
+3. To build and save semantic index (overwrites existing file):
+```bash
+python src/semantic.py
+```
+
+(Optional) Run the notebook `notebooks/milestone1_results.ipynb` to preprocess and save the data, and build and save BM25 and semantic indices:
 ```bash
 jupyter execute notebooks/milestone1_results.ipynb
 ```
@@ -113,17 +128,6 @@ data/processed/clean_data.csv
 data/processed/preprocessed_corpus.csv
 data/processed/bm25.pkl
 data/processed/embedding.faiss
-```
-
-(Optional) To preprocess and save the data only (overwrites existing file): 
-```bash
-python src/preprocess.py
-```
-
-Expected output files:
-
-```text
-data/processed/preprocessed_corpus.csv
 ```
 
 #### RAG

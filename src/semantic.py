@@ -59,3 +59,16 @@ def semantic_search(query, index_path, model, products_df, top_k=5):
     results = products_df.iloc[indices[0]][['product_title', 'review_text', 'rating']]
     results['score'] = scores[0]
     return results.sort_values('score', ascending=False)
+
+
+if __name__ == "__main__":
+    from sentence_transformers import SentenceTransformer
+    import pandas as pd
+
+    corpus_path = "data/processed/preprocessed_corpus.csv"
+    corpus = pd.read_csv(corpus_path)
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    semantic_index_path = 'data/processed/embedding.faiss'
+
+    build_semantic_index(corpus, model, semantic_index_path, overwrite=True)

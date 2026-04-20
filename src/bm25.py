@@ -3,6 +3,12 @@ import pandas as pd
 import numpy as np
 import spacy
 import pickle
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from rank_bm25 import BM25Okapi
 from src.preprocess import preprocess_spacy
@@ -93,3 +99,10 @@ def build_bm25(path, corpus, overwrite=False):
         bm25 = pickle.load(f)
 
     return bm25
+
+
+if __name__ == "__main__":
+    corpus_path = "data/processed/preprocessed_corpus.csv"
+    corpus = pd.read_csv(corpus_path)
+    pickle_path = "data/processed/bm25.pkl"
+    build_bm25(pickle_path, corpus, overwrite=True)
