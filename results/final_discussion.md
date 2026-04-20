@@ -26,7 +26,11 @@
 - Summary of `README` improvements
 
 ### Code Quality Changes
-- Summary of cleanups
+- Moved file paths into config file
+- API key already not in code
+- Functions already included docstrings (to verify)
+- Updated environment file (to verify)
+- .gitignore already updated
 
 ## Step 4: Cloud Deployment Plan
 (See Step 4 above for required subsections)

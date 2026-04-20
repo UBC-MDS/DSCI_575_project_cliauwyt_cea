@@ -1,6 +1,19 @@
 import pandas as pd
 import spacy
 import os
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.config import (
+    CLEAN_DATA_PATH,
+    PREPROCESSED_CORPUS_PATH,
+    PROCESSED_DATA_DIR,
+    RAW_MERGED_PARQUET_PATH,
+)
 
 
 def make_corpus(
@@ -104,7 +117,7 @@ def make_clean_data(raw_data_path, clean_data_path):
     data.dropna(subset=['product_title'], inplace=True)
 
     # save clean data
-    os.makedirs('data/processed', exist_ok=True)
+    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
     data.to_csv(clean_data_path)
     print(f"Saved clean data to {clean_data_path}")
 
@@ -135,7 +148,7 @@ def make_corpus_preprocess(clean_data_path, corpus_path):
     corpus = make_corpus(df=data)
 
     # preprocess corpus and save it
-    os.makedirs('data/processed', exist_ok=True)
+    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
     nlp = spacy.load("en_core_web_md", disable=["parser", "ner"])
     corpus["text"] = [preprocess_spacy(text) for text in nlp.pipe(corpus["text"])]
     corpus.to_csv(corpus_path)
@@ -143,8 +156,5 @@ def make_corpus_preprocess(clean_data_path, corpus_path):
 
 
 if __name__ == "__main__":
-    raw_data_path = 'data/raw/merged.parquet'
-    clean_data_path = 'data/processed/clean_data.csv'
-    make_clean_data(raw_data_path, clean_data_path)
-    corpus_path = 'data/processed/preprocessed_corpus.csv'
-    make_corpus_preprocess(clean_data_path, corpus_path)
+    make_clean_data(RAW_MERGED_PARQUET_PATH, CLEAN_DATA_PATH)
+    make_corpus_preprocess(CLEAN_DATA_PATH, PREPROCESSED_CORPUS_PATH)
