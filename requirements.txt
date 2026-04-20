@@ -10,3 +10,5 @@ duckdb==1.5.1
 spacy==3.8.13
 langchain-community==0.4.1
 langchain-huggingface==1.2.1
+tavily==1.1.0
+langchain-openai==1.1.14
