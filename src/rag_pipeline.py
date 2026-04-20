@@ -3,6 +3,14 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 import pandas as pd
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.config import VECTOR_STORE_DIR
 
 
 def load_llm():
@@ -152,8 +160,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Vector store
-    vector_path = "data/processed/vector_store"
-    vectorstore = load_vectorstore(vector_path)
+    vectorstore = load_vectorstore(VECTOR_STORE_DIR)
 
     # Retrievers
     vector_retriever = semantic_retriever(vectorstore)

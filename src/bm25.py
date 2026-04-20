@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from rank_bm25 import BM25Okapi
+from src.config import BM25_INDEX_PATH, PREPROCESSED_CORPUS_PATH
 from src.preprocess import preprocess_spacy
 
 
@@ -102,7 +103,5 @@ def build_bm25(path, corpus, overwrite=False):
 
 
 if __name__ == "__main__":
-    corpus_path = "data/processed/preprocessed_corpus.csv"
-    corpus = pd.read_csv(corpus_path)
-    pickle_path = "data/processed/bm25.pkl"
-    build_bm25(pickle_path, corpus, overwrite=True)
+    corpus = pd.read_csv(PREPROCESSED_CORPUS_PATH)
+    build_bm25(BM25_INDEX_PATH, corpus, overwrite=True)

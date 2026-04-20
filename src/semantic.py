@@ -1,5 +1,13 @@
 import faiss
 import os
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.config import PREPROCESSED_CORPUS_PATH, SEMANTIC_INDEX_PATH
 
 
 def build_semantic_index(corpus, model, index_path, overwrite=False):
@@ -65,10 +73,6 @@ if __name__ == "__main__":
     from sentence_transformers import SentenceTransformer
     import pandas as pd
 
-    corpus_path = "data/processed/preprocessed_corpus.csv"
-    corpus = pd.read_csv(corpus_path)
-
+    corpus = pd.read_csv(PREPROCESSED_CORPUS_PATH)
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    semantic_index_path = 'data/processed/embedding.faiss'
-
-    build_semantic_index(corpus, model, semantic_index_path, overwrite=True)
+    build_semantic_index(corpus, model, str(SEMANTIC_INDEX_PATH), overwrite=True)

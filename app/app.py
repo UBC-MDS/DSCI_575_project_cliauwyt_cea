@@ -13,25 +13,26 @@ from src.vectorstore import csv_loader, load_vectorstore
 from src.rag_pipeline import load_llm, semantic_retriever, initialize_rag_chain, format_docs_to_df
 from src.hybrid import bm25_retriever, hybrid_retriever
 from src.prompts import prompt
+from src.config import (
+    BM25_INDEX_PATH,
+    PREPROCESSED_CORPUS_PATH,
+    SEMANTIC_INDEX_PATH,
+    VECTOR_STORE_DIR,
+)
 
 load_dotenv()
 
-corpus_path = 'data/processed/preprocessed_corpus.csv'
-data = pd.read_csv(corpus_path)
+data = pd.read_csv(PREPROCESSED_CORPUS_PATH)
 
 # Search
 # BM25 and semantic search
-bm25_index_path = 'data/processed/bm25.pkl'
-semantic_index_path = 'data/processed/embedding.faiss'
-
 # Semantic search embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # RAG
 # Docs and vector store
-docs = csv_loader(corpus_path)
-vector_path = "data/processed/vector_store"
-vectorstore = load_vectorstore(vector_path)
+docs = csv_loader(PREPROCESSED_CORPUS_PATH)
+vectorstore = load_vectorstore(VECTOR_STORE_DIR)
 
 # Retrievers
 ensemble_retriever = hybrid_retriever(
@@ -124,7 +125,7 @@ def server(input, output, session):
             from src.bm25 import bm25_search
 
             results = (
-                bm25_search(q, bm25_index_path, data, top_k=3)
+                bm25_search(q, BM25_INDEX_PATH, data, top_k=3)
                 .assign(
                     review_text=lambda d: d["review_text"].str.slice(0, 200),
                     score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),
@@ -137,7 +138,7 @@ def server(input, output, session):
             from src.semantic import semantic_search
 
             results = (
-                semantic_search(q, semantic_index_path, model, data, top_k=3)
+                semantic_search(q, SEMANTIC_INDEX_PATH, model, data, top_k=3)
                 .assign(
                     review_text=lambda d: d["review_text"].str.slice(0, 200),
                     score=lambda d: d["score"].map(lambda x: f"{x:.2f}"),

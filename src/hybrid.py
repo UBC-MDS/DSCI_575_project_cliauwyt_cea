@@ -9,6 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.bm25 import preprocess_spacy
+from src.config import PREPROCESSED_CORPUS_PATH, VECTOR_STORE_DIR
 from src.rag_pipeline import semantic_retriever
 
 
@@ -88,12 +89,10 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Docs
-    corpus_path = 'data/processed/preprocessed_corpus.csv'
-    docs = csv_loader(corpus_path)
+    docs = csv_loader(PREPROCESSED_CORPUS_PATH)
 
-    # Vector store
-    vector_path = "data/processed/vector_store"
-    vectorstore = load_vectorstore(vector_path)
+    # Vector store 
+    vectorstore = load_vectorstore(VECTOR_STORE_DIR)
 
     # Retrievers
     ensemble_retriever = hybrid_retriever(

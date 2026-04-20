@@ -2,6 +2,14 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.config import PREPROCESSED_CORPUS_PATH, VECTOR_STORE_DIR
 
 
 def csv_loader(
@@ -99,14 +107,10 @@ if __name__ == "__main__":
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    # Define input corpus location and output vector store directory.
-    corpus_path = 'data/processed/preprocessed_corpus.csv'
-    vector_path = "data/processed/vector_store"
-    
     # Load CSV as Documents
-    docs = csv_loader(corpus_path)
+    docs = csv_loader(PREPROCESSED_CORPUS_PATH)
 
     # Build the vector store and persist it to disk.
-    build_vectorstore(docs, vector_path, embeddings)
+    build_vectorstore(docs, VECTOR_STORE_DIR, embeddings)
 
-    print(f"Saved vector store to {vector_path}")
+    print(f"Saved vector store to {VECTOR_STORE_DIR}")
