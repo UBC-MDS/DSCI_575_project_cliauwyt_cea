@@ -30,7 +30,7 @@ def build_semantic_index(corpus, model, index_path, overwrite=False):
         product_embeddings = model.encode(corpus.text.tolist())
         index = faiss.IndexFlatL2(product_embeddings.shape[1])
         index.add(product_embeddings)
-        faiss.write_index(index, index_path)
+        faiss.write_index(index, str(index_path))
         print(f"Saved semantic index to {index_path}")
 
     else:
@@ -61,7 +61,7 @@ def semantic_search(query, index_path, model, products_df, top_k=5):
         ``review_text``, ``rating``, and ``score``, sorted by ``score`` in
         descending order.
     """
-    loaded_index = faiss.read_index(index_path)
+    loaded_index = faiss.read_index(str(index_path))
     query_embedding = model.encode([query])
     scores, indices = loaded_index.search(query_embedding, top_k)
     results = products_df.iloc[indices[0]][['product_title', 'review_text', 'rating']]
@@ -75,4 +75,4 @@ if __name__ == "__main__":
 
     corpus = pd.read_csv(PREPROCESSED_CORPUS_PATH)
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    build_semantic_index(corpus, model, str(SEMANTIC_INDEX_PATH), overwrite=True)
+    build_semantic_index(corpus, model, SEMANTIC_INDEX_PATH, overwrite=True)
