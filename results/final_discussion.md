@@ -13,12 +13,14 @@
     - Results
 - Which model you chose and why
 
-## Step 2: Additional Feature (state which option you chose)
+## Step 2: Additional Feature (Tool Integration)
 
 ### What You Implemented
 
-- Description of the feature
+- Added web search functionality using Tavily. Both web search and RAG are exposed as tools to the agent, who is instructed to always use the RAG tool and use the web search tool when the user asks for current information.
 - Key results or examples
+- Show 3 example queries where the tool was used
+- Explain whether it improved the results
   
 ## Step 3: Improve Documentation and Code Quality
 
@@ -28,7 +30,7 @@
 ### Code Quality Changes
 - Moved file paths into config file
 - API key already not in code
-- Functions already included docstrings (to verify)
+- Added docstrings to new functions (to verify)
 - Updated environment file (to verify)
 - .gitignore already updated
 
