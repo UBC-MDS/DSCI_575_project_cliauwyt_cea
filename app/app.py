@@ -132,6 +132,7 @@ app_ui = ui.page_fillable(
 def server(input, output, session):
     @render.data_frame
     def search_results():
+        """Return search results based on the selected retrieval method."""
         type = input.retrieval_type()
         q = input.query()
 
@@ -163,27 +164,32 @@ def server(input, output, session):
 
     @render.ui
     def rag_text():
+        """Render the RAG-generated answer text for the current query."""
         q = input.rag_query()
         rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
         return ui.markdown(rag_chain.invoke(q))
     
     @render.data_frame
     def rag_results():
+        """Display retrieved documents used for RAG response generation."""
         q = input.rag_query()
         retreived_docs = ensemble_retriever.invoke(q)
         return render.DataTable(format_docs_to_df(retreived_docs))
 
     @reactive.calc
     def agent_response():
+        """Compute and cache the agent response for the current query."""
         q = input.agent_query()
         return invoke_agent(agent, q)
 
     # @render.ui
     # def agent_tool():
+    #     """Render tool-call output as markdown text."""
     #     return ui.markdown(format_tools(agent_response()))
     
     @render.ui
     def agent_text():
+        """Render the final agent response as markdown text."""
         return ui.markdown(format_response(agent_response()))
 
 
