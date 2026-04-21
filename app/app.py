@@ -120,7 +120,7 @@ app_ui = ui.page_fillable(
                 ui.input_text("agent_query", "Query"),
                 ui.div(
                     ui.output_ui("agent_text"),
-                    ui.output_ui("agent_tool")
+                    # ui.output_ui("agent_tool")
                 ),
                 col_widths=(3, 9)
             )
@@ -178,9 +178,9 @@ def server(input, output, session):
         q = input.agent_query()
         return invoke_agent(agent, q)
 
-    @render.ui
-    def agent_tool():
-        return ui.markdown(format_tools(agent_response()))
+    # @render.ui
+    # def agent_tool():
+    #     return ui.markdown(format_tools(agent_response()))
     
     @render.ui
     def agent_text():
