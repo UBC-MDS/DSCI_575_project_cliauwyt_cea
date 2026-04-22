@@ -127,14 +127,14 @@
 
 -   Added description for tool implementation
 -   Added set up information on how to acquire Tavily API key and access the Agent mode for our App
--   Added usage examples in the end of the `README` file
+-   Added a demo video as a usage example in the end of the `README` file
 
 ### Code Quality Changes
 
 -   Moved file paths into config file
 -   API key already not in code
--   Added docstrings to new functions (to verify)
--   Updated environment file (to verify)
+-   Added docstrings to new functions
+-   Updated environment file
 -   .gitignore already updated
 
 ## Step 4: Cloud Deployment Plan
@@ -163,4 +163,4 @@ We would deploy our Amazon Product Query Assistant pipeline on AWS.
     2.  Preprocess the data and rebuild the indexes (BM25 + Semantic + vectorstore)
     3.  Upload the updated indexes back to S3
 
-    Since Lambda is even-driven and severless, it is cost-effective for periodic update jobs like this. We save the cost compared to keeping a server running continuously. This ensures the recommendation pipeline stays up to date with new products and reviews without manual intervention.
+    Since Lambda is event-driven and serverless, it is cost-effective for periodic update jobs like this. We save the cost compared to keeping a server running continuously. This ensures the recommendation pipeline stays up to date with new products and reviews without manual intervention.
