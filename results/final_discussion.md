@@ -33,55 +33,55 @@
         -   **Query 1: Bar Soap**
             -   LLM 1: `Llama-3.2-3B-Instruct`
 
-                ![](images/clipboard-3251966619.png)
+                ![](../img/M2/bar_soap_rag.png)
 
             -   LLM 2: `Qwen3-8B`
 
-                ![](images/clipboard-1636650054.png)
+                ![](../img/Final/barsoap_rag2.png)
 
                 For searching bar soap product, LLM 2 performed better by returning only relevant bar soap recommendations and acknowledging that the soap pouch is not a bar soap. However, LLM 2 is not confident with the hygiene soap bar which would be actually useful for user's intent. LLM 1, on the other hand, hallucinated by including a soap pouch as its first recommendation, which is an accessory rather than the product itself.
         -   **Query 2: Hairspray**
             -   LLM 1: `Llama-3.2-3B-Instruct`
 
-                ![](images/clipboard-3061211910.png)
+                ![](../img/M2/hairspray_rag.png)
 
             -   LLM 2: `Qwen3-8B`
 
-                ![](images/clipboard-504478598.png)
+                ![](../img/Final/hairspray_rag2.png)
 
                 Both models recommended the same primary product (Frizz Ease Hair Spray). The performance for the two LLMs are equal for this query.
         -   **Query 3: Humidifier**
             -   LLM 1: `Llama-3.2-3B-Instruct`
 
-                ![](images/clipboard-672959851.png)
+                ![](../img/Final/humidifier_rag1.png)
 
             -   LLM 2: `Qwen3-8B`
 
-                ![](images/clipboard-1188413142.png)
+                ![](../img/Final/humidifier_rag2.png)
 
                 Both models returned the same diffuser recommendations which is the Aromyst Ultrasonic Glass Diffuser which is very relevant to user's intent. However, LLM 2 keep listing irrelevant essential oil products and notably acknowledged their irrelevance, suggesting a tendency to over-generate rather than staying focused on the query.
         -   **Query 4: Lamp**
             -   LLM 1: `Llama-3.2-3B-Instruct`
 
-                ![](images/clipboard-2806423678.png)
+                ![](../img/M2/lamp_rag.png)
 
             -   LLM 2: `Qwen3-8B`
 
-                ![](images/clipboard-3254034001.png)
+                ![](../img/Final/lamp_rag2.png)
 
                 Both models recommend a daylight lamp that reviewers confirmed works as a daylight alarm, which is directly matching the user's intent of finding a lamp that aids in waking up. LLM 2 recommend further products that are not actual lamp, like alarm clock, and suggesting more duplicates.
         -   **Query 5: Sunscreen**
             -   LLM 1: `Llama-3.2-3B-Instruct`
 
-                ![](images/clipboard-2767093812.png)
+                ![](../img/Final/sunscreen_rag1.png)
 
             -   LLM 2: `Qwen3-8B`
 
-                ![](images/clipboard-3089058699.png)
+                ![](../img/Final/sunscreen_rag2.png)
 
                 Both LLMs suggested Mountain Falls Sunscreen which is an accurate sunscreen product to recommend for top choice. Nonetheless, both models failed to find a sunscreen suitable for babies, suggesting a limitation in the retrieved context rather than the models themselves. Again, the additional products LLM 2 suggesting are not relevant/accurate anymore for our query.
 
--   **Which model you chose and why**
+-   **Which model we chose and why**
 
     We selected LLM 1 (`Llama-3.2-3B-Instruct`) as our default model. Across the five queries, Llama demonstrated better precision and more relevant enough recommendations overall without over-generating. LLM 1 is better at keeping the result concise compared to LLM 2.
 
@@ -91,19 +91,37 @@
 
 -   **Description of the feature**
 
-    Added web search functionality using Tavily. Both web search and RAG are exposed as tools to the agent, who is instructed to always use the RAG tool and use the web search tool when the user asks for current information.
+    To extend the pipeline beyond static document retrieval, web search functionality was integrated using Tavily. Both the RAG retriever and the web search tool are exposed as tools to the agent. The agent is instructed to always prioritize the RAG tool for product-related queries, and fall back to the web search tool when the user requests current or real-time information. This allows the pipeline to ground its responses in both curated product reviews and up-to-date external information.
 
--   Key results or examples
+-   **Three Key results or examples**
 
--   Show 3 example queries where the tool was used
+    ![](images/clipboard-778779449.png)
 
--   Explain whether it improved the results
+    It seems that the agent fails to instruct the web-search tool instead of RAG tool for retrieving "what soap is trending right now".
+
+    ![](../img/Final/famous_soap_rag.png)
+
+    Here is the example of regular RAG tool query result to compare with Agent Mode.
+
+    ![](../img/Final/famous_soap_tool.png)
+
+    For this query, the agent succeeds to instruct web-search tool to retrieve some real-time information about current popular soap. Interestingly, the agent also instruct RAG tool to retrieve some products from our data set, which is similar when using RAG mode (except the Boyer Lye product).
+
+    ![](../img/Final/recalled_sunscreen_tool.png)
+
+    Agent tool is able to explain if there is any recalled sunscreen happening in 2025 from recent articles.
+
+-   **Explain whether it improved the results**
+
+    The web-search tool improves the result by gaining a recent update using real-time information which would be out of the scope of our original data set. As a result, the response becomes less static and flexible since we are not relying on a static data set. However, for standard product recommendation queries, the web search tool adds little benefit over pure RAG since both would recommend the same products from the data set. Additionally, the agent's ability to select the right tool for the right query is critical to overall performance.
 
 ## Step 3: Improve Documentation and Code Quality
 
 ### Documentation Update
 
--   Summary of `README` improvements
+-   Added description for tool implementation
+-   Added set up information on how to acquire Tavily API key and access the Agent mode for our App
+-   usage examples??????
 
 ### Code Quality Changes
 
@@ -125,6 +143,8 @@
 
     -   BM25 index
 
+    All will be stored in S3
+
 2.  Compute
 
     -   Where will your app run?
@@ -132,6 +152,8 @@
     -   How will you handle multiple users (concurrency)?
 
     -   How will you handle LLM inference (API vs hosted model)?
+
+    EC2, Spark?
 
 3.  Streaming/Updates
 
