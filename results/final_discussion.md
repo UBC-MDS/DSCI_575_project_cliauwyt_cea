@@ -95,13 +95,13 @@
 
 -   **Three Key results or examples**
 
-    1. What soap is trending right now
+    1.  What soap is trending right now
 
     ![](../img/Final/trend_soap_fail_tool.png)
 
     It seems that the agent failed to call the web-search tool instead of RAG tool for retrieving "what soap is trending right now".
 
-    2. What soap is famous right now
+    2.  What soap is famous right now
 
     ![](../img/Final/famous_soap_rag.png)
 
@@ -111,7 +111,7 @@
 
     For this query, the agent succeeded to call the web-search tool to retrieve some real-time information about current popular soaps. Interestingly, the agent also called the RAG tool to retrieve some products from our data set, which is similar to using RAG mode (except the Boyer Lye product).
 
-    3. Is there any recalled sunscreen in 2025
+    3.  Is there any recalled sunscreen in 2025
 
     ![](../img/Final/recalled_sunscreen_tool.png)
 
@@ -127,7 +127,7 @@
 
 -   Added description for tool implementation
 -   Added set up information on how to acquire Tavily API key and access the Agent mode for our App
--   usage examples??????
+-   Added usage examples in the end of the `README` file
 
 ### Code Quality Changes
 
@@ -139,30 +139,28 @@
 
 ## Step 4: Cloud Deployment Plan
 
-1.  Data Storage: Where will you store the following?
+We would deploy our Amazon Product Query Assistant pipeline on AWS.
 
-    -   raw data
+1.  Data Storage:
 
-    -   processed data
-
-    -   vector index
-
-    -   BM25 index
-
-    All data and indexes will be stored in S3, then we can load them into EC2 when app starts. This way we can have cheap and scalable object storage that is easy to retrieve and update.
+    All data (raw + processed) and indexes (BM25 + Semantic + vector) will be stored in Amazon S3 due to low cost, scalability, and ease of access from other AWS services like EC2 and Lambda. All indexes will be serialized (e.g. as `.pkl` or `.faiss` files) before storing into S3. When the app starts, the indexes are downloaded from S3 and loaded into memory. This ensures indexes persist between sessions without needing to be rebuilt every time the app restarts.
 
 2.  Compute
 
-    -   Where will your app run?
+    The app will run on an AWS EC2 instance. The app's dependencies will be managed using a Python virtual environment, we use `venv` + `pip` with `requirement.txt` file to ensure a consistent runtime environment.
 
-    -   How will you handle multiple users (concurrency)?
+    Using AWS Auto Scaling can help to handle concurrency by automatically spin up additional EC2 instances when traffic increases. An AWS Elastic Load Balancer (ELB) would distribute incoming requests across instances to ensure multiple users can query the system simultaneously without compromising the App performance.
 
-    -   How will you handle LLM inference (API vs hosted model)?
-
-    EC2, Spark?
+    For LLM inference, we will continue using an external inference API (HuggingFace Inference API via Novita) rather than self-hosting a model. Therefore, setting API key from HuggingFace in `.env` variables is required to run the App. Using API avoids the high cost of GPU EC2 instances which are expensive to run continuously.
 
 3.  Streaming/Updates
 
-    -   How will you incorporate new products in production?
+    For incorporating new reviews, the current `download_data.ipynb` notebook will be converted to a proper script with the row limit removed. New reviews will be fetched by connecting to the Amazon product and reviews data set API using DuckDB, which supports incremental/streaming queries. Only newly added reviews will be added to the existing data set in S3 using incremental pipeline strategy with `append`, avoiding a full re-download each time. Then, all indexes can be rebuilt to stay updated with the new added data.
 
-    -   How will your pipeline stay up to date?
+    Using AWS Lambda service will help the pipeline stay up to date by running on a scheduled basis (e.g. daily or weekly) via AWS EventBridge. The pipeline will run the following steps automatically:
+
+    1.  Connect to the Amazon dataset API using DuckDB and download only new data incrementally
+    2.  Preprocess the data and rebuild the indexes (BM25 + Semantic + vectorstore)
+    3.  Upload the updated indexes back to S3
+
+    Since Lambda is even-driven and severless, it is cost-effective for periodic update jobs like this. We save the cost compared to keeping a server running continuously. This ensures the recommendation pipeline stays up to date with new products and reviews without manual intervention.
