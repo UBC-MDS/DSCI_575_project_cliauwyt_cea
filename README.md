@@ -193,3 +193,7 @@ shiny run app/app.py
 ```
 
 2. Open the local URL shown in the terminal (typically `http://127.0.0.1:8000`).
+
+## Usage Example with Demo Video
+
+![](img/demo.gif)
