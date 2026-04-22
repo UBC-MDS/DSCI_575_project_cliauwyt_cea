@@ -95,7 +95,7 @@
 
 -   **Three Key results or examples**
 
-    ![](images/clipboard-778779449.png)
+    ![](../img/Final/trend_soap_fail_tool.png)
 
     It seems that the agent fails to instruct the web-search tool instead of RAG tool for retrieving "what soap is trending right now".
 
