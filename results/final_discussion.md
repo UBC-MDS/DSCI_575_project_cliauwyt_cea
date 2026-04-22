@@ -143,7 +143,7 @@
 
     -   BM25 index
 
-    All will be stored in S3
+    All data and indexes will be stored in S3, then we can load them into EC2 when app starts. This way we can have cheap and scalable object storage that is easy to retrieve and update.
 
 2.  Compute
 
