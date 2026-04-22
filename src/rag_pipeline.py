@@ -13,8 +13,16 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.config import VECTOR_STORE_DIR
 
 
-def load_llm():
-    """Initialize and return the configured Hugging Face chat LLM.
+def load_llm(repo_id="meta-llama/Meta-Llama-3-8B-Instruct", provider="novita"):
+    """Create a Hugging Face chat model wrapper for inference.
+
+    Parameters
+    ----------
+    repo_id : str, default="meta-llama/Meta-Llama-3-8B-Instruct"
+        Hugging Face model repository identifier used by the inference
+        endpoint.
+    provider : str, default="novita"
+        Inference provider passed to ``HuggingFaceEndpoint``.
 
     Returns
     -------
@@ -22,10 +30,10 @@ def load_llm():
         Chat model wrapper backed by a Hugging Face inference endpoint.
     """
     llm_endpoint = HuggingFaceEndpoint(
-        repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+        repo_id=repo_id,
         task="text-generation",
         max_new_tokens=512,
-        provider="novita"
+        provider=provider
     )
 
     return ChatHuggingFace(llm=llm_endpoint)

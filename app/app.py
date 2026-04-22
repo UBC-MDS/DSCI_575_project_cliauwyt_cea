@@ -1,4 +1,4 @@
-from shiny import ui, render, App
+from shiny import ui, render, App, reactive
 import pandas as pd
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
@@ -19,6 +19,7 @@ from src.config import (
     SEMANTIC_INDEX_PATH,
     VECTOR_STORE_DIR,
 )
+from src.agent import build_agent, invoke_agent, format_tools, format_response
 
 load_dotenv()
 
@@ -42,6 +43,7 @@ ensemble_retriever = hybrid_retriever(
 
 # LLM
 llm = load_llm()
+agent = build_agent()
 
 
 app_ui = ui.page_fillable(
@@ -110,6 +112,18 @@ app_ui = ui.page_fillable(
                 ),
                 col_widths=(3, 9)
             )
+        ),
+
+        ui.nav_panel(
+            "Agent Mode",
+            ui.layout_columns(
+                ui.input_text("agent_query", "Query"),
+                ui.div(
+                    ui.output_ui("agent_text"),
+                    # ui.output_ui("agent_tool")
+                ),
+                col_widths=(3, 9)
+            )
         )
     )
 )
@@ -118,6 +132,7 @@ app_ui = ui.page_fillable(
 def server(input, output, session):
     @render.data_frame
     def search_results():
+        """Return search results based on the selected retrieval method."""
         type = input.retrieval_type()
         q = input.query()
 
@@ -149,15 +164,33 @@ def server(input, output, session):
 
     @render.ui
     def rag_text():
+        """Render the RAG-generated answer text for the current query."""
         q = input.rag_query()
         rag_chain = initialize_rag_chain(ensemble_retriever, llm, prompt)
         return ui.markdown(rag_chain.invoke(q))
     
     @render.data_frame
     def rag_results():
+        """Display retrieved documents used for RAG response generation."""
         q = input.rag_query()
         retreived_docs = ensemble_retriever.invoke(q)
         return render.DataTable(format_docs_to_df(retreived_docs))
+
+    @reactive.calc
+    def agent_response():
+        """Compute and cache the agent response for the current query."""
+        q = input.agent_query()
+        return invoke_agent(agent, q)
+
+    # @render.ui
+    # def agent_tool():
+    #     """Render tool-call output as markdown text."""
+    #     return ui.markdown(format_tools(agent_response()))
+    
+    @render.ui
+    def agent_text():
+        """Render the final agent response as markdown text."""
+        return ui.markdown(format_response(agent_response()))
 
 
 app = App(app_ui, server)

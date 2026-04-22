@@ -136,10 +136,19 @@ data/processed/embedding.faiss
 
 1. HuggingFace API key: log into HuggingFace account and create a `read` token. Go to your profile > Settings > Access Tokens > Create new token > Select `Read` Token type > name your token > Create token. More information can be found in [here](https://huggingface.co/docs/hub/security-tokens).
 
-2. Paste the key into `.env` at the root with `HUGGINGFACEHUB_API_TOKEN=<YOUR TOKEN>`.
+2. GitHub Models key: create a GitHub personal access token (PAT) with access to GitHub Models. Go to GitHub > Settings > Developer settings > Personal access tokens > Tokens (fine-grained) > Generate new token > Add permissions > Search for "Models" and select it > Generate token.
 
+3. Tavily API key: create an account at [Tavily](https://tavily.com/) and generate an API key from your dashboard.
 
-3. Build and save vector store (overwrites existing files): 
+4. Paste all required keys into `.env` at the project root:
+
+```env
+HUGGINGFACEHUB_API_TOKEN=<YOUR_HUGGINGFACE_TOKEN>
+GITHUB_TOKEN=<YOUR_GITHUB_TOKEN>
+TAVILY_API_KEY=<YOUR_TAVILY_API_KEY>
+```
+
+5. Build and save vector store (overwrites existing files): 
 ```bash
 python src/vectorstore.py
 ```
@@ -150,12 +159,12 @@ Expected output directory:
 data/processed/vector_store/
 ```
 
-4. To run RAG pipeline:
+6. To run RAG pipeline:
 ```bash
 python src/rag_pipeline.py "<query>"
 ```
 
-5. To run hybrid RAG pipeline:
+7. To run hybrid RAG pipeline:
 ```bash
 python src/hybrid.py "<query>"
 ```
@@ -168,7 +177,9 @@ python src/hybrid.py "<query>"
 2. BM25 index: `data/processed/bm25.pkl`
 3. Semantic index: `data/processed/embedding.faiss`
 4. Vector store: `data/processed/vector_store/`
-5. HuggingFace API key in `.env`
+5. HuggingFace API key in `.env` (`HUGGINGFACEHUB_API_TOKEN`)
+6. GitHub Models key in `.env` (`GITHUB_TOKEN`)
+7. Tavily API key in `.env` (`TAVILY_API_KEY`)
 
 
 1. Start the Shiny app:
