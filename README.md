@@ -43,6 +43,10 @@ The Hybrid RAG workflow combines BM25 and semantic retrieval into an ensemble re
 
 ![](img/rag_diagram.png)
 
+### Web Search Tool Integration (Tavily)
+
+The pipeline is extended with a web search tool using Tavily, exposed alongside the RAG retriever as agent tools. The agent prioritizes the RAG tool for product-related queries and falls back to web search when the query requires current or real-time information (e.g., product recalls, trending items). This allows the pipeline to go beyond the static dataset and ground responses with up-to-date information from the web.
+
 ### Note on functions
 Retriever functions (`semantic_retriever`, `bm25_retriever`, `hybrid_retriever`) return retriever objects. This is more modular and allows the output of the functions to be directly fed into `initialize_rag_chain`. To obtain a ranked list of documents, call `retriever.invoke(<query>)`.
 
@@ -189,3 +193,7 @@ shiny run app/app.py
 ```
 
 2. Open the local URL shown in the terminal (typically `http://127.0.0.1:8000`).
+
+## Usage Example with Demo Video
+
+![](img/demo.gif)
